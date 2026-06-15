@@ -41,7 +41,7 @@ claude-md-management (tooling)    — CLAUDE.md audit and improvement
 
 Install the companion plugins first:
 
-```
+```bash
 # From addyosmani/agent-skills (custom repo)
 /plugin marketplace add addy-agent-skills github:addyosmani/agent-skills
 /plugin install agent-skills@addy-agent-skills
@@ -52,25 +52,53 @@ Install the companion plugins first:
 /plugin install claude-md-management
 ```
 
-### Install harnesspowers
+---
 
-**From GitHub (once published):**
+### Platform Integration Guides
+
+#### 1. Claude Code
+**Local development (symlink):**
+```bash
+# Clone the repo
+git clone https://github.com/isaackolamide/harnesspowers <path-to-harnesspowers>
+
+# Symlink into plugin cache
+mkdir -p ~/.claude/plugins/cache/isaac-harnesspowers/harnesspowers
+ln -sf <path-to-harnesspowers> ~/.claude/plugins/cache/isaac-harnesspowers/harnesspowers/2.0.0
 ```
-/plugin marketplace add isaac-harnesspowers github:isaackolamide/harnesspowers
-/plugin install harnesspowers@isaac-harnesspowers
-```
+Then add the plugin to `~/.claude/plugins/installed_plugins.json` and enable it in `~/.claude/settings.json`.
+
+#### 2. Antigravity CLI / IDE
+Antigravity automatically discovers and loads plugins from the `~/.gemini/config/plugins` directory.
 
 **Local development (symlink):**
 ```bash
 # Clone the repo
-git clone https://github.com/isaackolamide/harnesspowers ~/Documents/Projects/grow/harnesspowers
+git clone https://github.com/isaackolamide/harnesspowers <path-to-harnesspowers>
 
-# Symlink into plugin cache
-mkdir -p ~/.claude/plugins/cache/isaac-harnesspowers/harnesspowers
-ln -sf ~/Documents/Projects/grow/harnesspowers ~/.claude/plugins/cache/isaac-harnesspowers/harnesspowers/2.0.0
+# Symlink into Antigravity plugins directory
+ln -sf <path-to-harnesspowers> ~/.gemini/config/plugins/harnesspowers
+
+# Ensure plugin.json is linked to the root of harnesspowers
+ln -sf .claude-plugin/plugin.json <path-to-harnesspowers>/plugin.json
+```
+Restart your Antigravity session to discover and enable the skills.
+
+#### 3. GitHub Copilot
+Copilot automatically reads repository-level rules and instructions from `.github/copilot-instructions.md`.
+
+**To enforce harnesspowers rules in your workspace:**
+```bash
+# Copy the Copilot instructions to your workspace root
+mkdir -p <your-project-root>/.github
+cp <path-to-harnesspowers>/.github/copilot-instructions.md <your-project-root>/.github/copilot-instructions.md
 ```
 
-Then add to `~/.claude/plugins/installed_plugins.json` and enable in `~/.claude/settings.json`.
+**To load skills/plugins locally into Copilot CLI/Codex:**
+```bash
+# Symlink into Copilot plugins directory
+ln -sf <path-to-harnesspowers> ~/.copilot/plugins/harnesspowers
+```
 
 ## SDD Workflow
 
