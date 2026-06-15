@@ -19,10 +19,8 @@ Task arrives
     ├── Vague / don't know what to build yet?   → agent-skills:interview-me
     ├── Rough concept, need to explore variants? → agent-skills:idea-refine
     │
-    ├── New project, need specs (greenfield)?    → harnesspowers:sdd-write-spec
-    │                                               (wraps superpowers:brainstorming + agent-skills:interview-me)
-    ├── Existing project, no specs (brownfield)? → harnesspowers:sdd-extract-spec
-    │                                               (wraps agent-skills:interview-me + codebase analysis)
+    ├── Need specs for a project (new or existing)? → harnesspowers:sdd-write-spec
+    │                                               (wraps superpowers:brainstorming + agent-skills:interview-me + codebase analysis)
     │
     ├── Planning a feature from roadmap?         → harnesspowers:sdd-plan-feature
     │                                               (wraps agent-skills:planning-and-task-breakdown + superpowers:writing-plans)

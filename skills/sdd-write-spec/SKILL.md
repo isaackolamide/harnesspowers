@@ -1,6 +1,6 @@
 ---
 name: sdd-write-spec
-description: Create SDD specification documents (mission, tech-stack, roadmap) in specs/ directory
+description: Create SDD specification documents (mission, tech-stack, roadmap) in specs/ directory — works for new and existing projects. Accepts optional seed context.
 metadata:
   type: implementation
   composesWith: [superpowers:brainstorming, agent-skills:interview-me]
@@ -8,76 +8,162 @@ metadata:
 
 # Software Design Document (SDD) Generator
 
-Create a structured specification "constitution" with three core files in your project's `specs/` directory. Each file captures critical project information using six core areas: Objective, Commands, Project Structure, Code Style, Testing Strategy, and Boundaries.
+Create a structured specification "constitution" with three core files in your project's `specs/` directory. Works for new projects and new initiatives inside an existing codebase.
 
 ## Workflow
 
-### Pre-Step: Intent Clarity Check
+### Pre-Step 0: Seed Input Check
 
-Before invoking brainstorming, assess whether the ask has the four minimum viable fields:
+Check if the user provided any context when invoking the skill — draft ideas, requirements notes, a pasted brief, or bullet points.
+
+**If seed input was provided:**
+- Parse it through the 6-area lens: Objective, Boundaries, Commands, Project Structure, Code Style, Testing Strategy
+- Mark which areas the seed answers, which remain open
+- Carry pre-filled answers forward — skip those topics in brainstorming and interview
+
+**If no seed input:** proceed with empty slate.
+
+Accepted seed formats: free-form text, pasted requirements doc, bullet-point ideas. Treat all as partial evidence, not final spec.
+
+---
+
+### Pre-Step 1: Context Check
+
+Ask: **"Is there an existing codebase for this initiative?"**
+
+- **Yes →** run the Analysis Branch (A1–A3) before brainstorming
+- **No →** skip directly to Step 1
+
+---
+
+### Analysis Branch — Existing Codebase Only
+
+Run A1–A3 before brainstorming. Carry evidence into Step 1 so brainstorming is focused confirmation rather than open-ended exploration.
+
+#### A1: Analyse Codebase Structure
+
+Read the project's file and folder layout. Identify:
+- Root-level structure (`src/`, `lib/`, `packages/`, `apps/`, etc.)
+- Package files (`package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`, etc.) — extract frameworks, major dependencies, scripts
+- Test structure and test runner
+- Build tooling, lint config, CI config (`.github/`, `Makefile`, etc.)
+
+This populates the **Project Structure** and **Testing Strategy** sections of tech-stack.md.
+
+#### A2: Read Existing Documentation
+
+Look for and read:
+- `README.md`
+- Any `docs/`, `documentation/`, or `wiki/` folders
+- Inline architecture comments in entry-point files
+- `CHANGELOG.md` or tagged releases for project history
+
+Extract any stated objectives, constraints, or architectural decisions already documented.
+
+#### A3: Analyse Git History
+
+```bash
+git log --oneline -50
+git shortlog -sn --no-merges | head -10
+git log --format="%s" | grep -oE "^(feat|fix|refactor|chore|docs)" | sort | uniq -c | sort -rn
+```
+
+Identify:
+- Feature areas with the most activity (reveals priorities)
+- Phases of development already completed
+- Recurring concerns in commit messages that reveal undocumented boundaries
+
+This informs roadmap.md — mark completed phases as done, show what's in progress.
+
+---
+
+### Step 1: Brainstorm
+
+Always invoke `superpowers:brainstorming`.
+
+- **New project:** Open-ended — explore problem space, requirements, and constraints
+- **Existing project (after analysis):** Evidence-grounded — confirm what was found, surface gaps, scope the new initiative on top of the existing base
+- **Seed input provided:** Focus only on open areas not already answered by the seed
+
+Do not run `agent-skills:interview-me` yet — that comes next and covers different ground.
+
+---
+
+### Step 2: Intent Clarity Check
+
+Assess whether the intent has the four minimum viable fields — skipping any already answered by seed input or codebase analysis:
 
 - **Who** — who is the user / stakeholder?
 - **Why** — why does this need to exist now?
 - **Success** — what does "done" look like?
 - **Constraint** — what is the binding limit?
 
-**If any are missing or vague:** invoke `agent-skills:interview-me` first. Use its confirmed restate (Outcome / User / Why now / Success / Constraint / Out of scope) as the input foundation for brainstorming.
+**If any are missing:** invoke `agent-skills:interview-me` to fill gaps. Frame questions around what code and brainstorming couldn't answer — do not re-ask things already covered.
 
-**If all four are present:** proceed directly to Step 1 — do not run `agent-skills:interview-me`.
+**If all four are present:** skip `agent-skills:interview-me`.
 
-Do not run both: if `agent-skills:interview-me` surfaces the intent, brainstorming uses that output and skips its own clarifying-questions phase. Running both back-to-back asks the user to answer the same territory twice.
+---
 
-### Step 1: Brainstorm
-Always start with `superpowers:brainstorming` to explore the problem space, gather requirements, and define constraints.
+### Step 3: Choose Specs Location
 
-The brainstorming skill helps you answer:
-- What are we solving?
-- Who needs it?
-- What are the constraints and trade-offs?
-- What does success look like?
-
-### Step 2: Choose Specs Location
-Decide where the `specs/` folder should live in your project.
-
-Common options:
-- `project-root/specs/` — Default, at root level
-- `docs/specs/` — Nested under documentation
+Ask where the `specs/` folder should live:
+- `project-root/specs/` — Default
+- `docs/specs/` — Nested under existing documentation
 - `packages/specs/` — In a monorepo package
-- Custom path you specify
+- Custom path the user specifies
 
-### Step 3: Generate Constitution
+---
+
+### Step 4: Pre-Write Confirmation Gate
+
+Before writing any file, present a restate:
+
+```
+Here's what I understand we're building:
+
+- Outcome:      <one line>
+- User:         <one line — who benefits>
+- Why now:      <one line — what prompted this>
+- Success:      <one line — how we know it worked>
+- Constraint:   <one line — the binding limit>
+- Out of scope: <one line — what we're explicitly not building>
+```
+
+Wait for explicit confirmation before writing. "Sounds good" or "whatever you think" is not a yes — ask "Anything to refine?" if the response is ambiguous.
+
+---
+
+### Step 5: Generate Constitution
+
 Create three files in the chosen `specs/` location:
 
-1. **mission.md** — Project vision and boundaries
-2. **tech-stack.md** — Technical decisions and implementation details
-3. **roadmap.md** — Phases, milestones, and timeline
+1. **mission.md** — Objective, Boundaries, Commands
+2. **tech-stack.md** — Project Structure, Code Style, Testing Strategy
+3. **roadmap.md** — Phases, milestones, timeline
 
-### Step 4: Structure Brainstorming Output
-Take brainstorming insights and structure them into the three specification files using your 6 core areas.
+For existing projects:
+- tech-stack.md Code Style must use a real snippet extracted from the existing codebase
+- roadmap.md must reflect actual project state — mark completed phases as done
+- If the codebase has contradictions (two competing patterns), surface them rather than silently picking one
 
-### Step 5: Output
-Files are created at:
+---
+
+## Output
+
 ```
-{your-chosen-path}/
+{chosen-path}/
 └── specs/
     ├── mission.md
     ├── tech-stack.md
     └── roadmap.md
 ```
 
-## File Structure
+---
+
+## File Templates
 
 ### mission.md
 
-Contains:
-- **Objective** — What are we building and why? Who is the user? What does success look like?
-- **Boundaries** — Three-tier system:
-  - **Always do:** Non-negotiable practices
-  - **Ask first:** Decisions requiring approval
-  - **Never do:** Absolute prohibitions
-- **Commands** — Full executable commands with flags (at a glance section)
-
-**Template:**
 ```markdown
 # Project Mission
 
@@ -111,28 +197,22 @@ What does success look like?
 
 ## Quick Commands
 
-```
+\`\`\`
 Build: [command]
 Test: [command]
 Lint: [command]
 Dev: [command]
-```
+\`\`\`
 ```
 
 ### tech-stack.md
 
-Contains:
-- **Project Structure** — Where source code lives, where tests go, where docs belong
-- **Code Style** — One real code snippet showing your style, naming conventions, formatting rules
-- **Testing Strategy** — Framework, test location, coverage expectations, which test levels for which concerns
-
-**Template:**
 ```markdown
 # Tech Stack & Implementation
 
 ## Project Structure
 
-```
+\`\`\`
 src/              → Application source code
 src/components    → [Component description]
 src/lib           → Shared utilities and helpers
@@ -140,7 +220,7 @@ tests/            → Unit and integration tests
 e2e/              → End-to-end tests
 docs/             → Documentation
 specs/            → Specification documents
-```
+\`\`\`
 
 ## Code Style
 
@@ -150,17 +230,13 @@ specs/            → Specification documents
 - Functions: `camelCase`
 - Constants: `UPPER_SNAKE_CASE`
 - Classes: `PascalCase`
-- [Add your specific conventions]
 
 ### Formatting Rules
 
 - Indentation: [spaces/tabs]
 - Line length: [max length]
-- [Other rules]
 
 ### Example
-
-Real code snippet showing your style:
 
 \`\`\`typescript
 // Good
@@ -199,12 +275,6 @@ Coverage expectations by level:
 
 ### roadmap.md
 
-Contains:
-- **Timeline & Phases** — Sequenced milestones and deliverables
-- **Dependencies** — Tech decisions and prerequisites from tech-stack.md
-- **Rollout Plan** — How/when to deploy or release
-
-**Template:**
 ```markdown
 # Roadmap & Milestones
 
@@ -214,7 +284,7 @@ Contains:
 **Goal**: [outcome]
 
 ### Milestones
-- [ ] [Deliverable 1]
+- [x] [Completed deliverable]
 - [ ] [Deliverable 2]
 
 **Dependencies**: [Tech decisions or prerequisites]
@@ -228,16 +298,6 @@ Contains:
 - [ ] [Deliverable 1]
 - [ ] [Deliverable 2]
 
-**Dependencies**: [What must complete first]
-
-## Phase 3: [Name]
-
-**Duration**: [timeframe]
-**Goal**: [outcome]
-
-### Milestones
-- [ ] [Deliverable 1]
-
 ## Rollout Plan
 
 How/when to deploy:
@@ -246,40 +306,13 @@ How/when to deploy:
 - [Stage 3]
 ```
 
-## Implementation
-
-When you invoke `harnesspowers:sdd-write-spec`:
-
-1. Trigger `superpowers:brainstorming` to explore and scope the project
-2. Ask: "Where should the `specs/` folder live?" (user specifies path)
-3. Gather your 6-area content from brainstorming insights:
-   - **For mission.md**: Objective + Boundaries + Commands
-   - **For tech-stack.md**: Project Structure + Code Style + Testing Strategy
-   - **For roadmap.md**: Phases, milestones, timeline, dependencies
-4. Create `specs/` directory at chosen location (if needed)
-5. Generate three files with templates pre-filled for your input
-6. Provide real examples in each file (especially code style)
-
-**Pre-write confirmation gate:** Before writing any of the 3 constitution files, present a restate using this format:
-
-```
-Here's what I understand we're building:
-
-- Outcome:      <one line>
-- User:         <one line — who benefits>
-- Why now:      <one line — what prompted this>
-- Success:      <one line — how we know it worked>
-- Constraint:   <one line — the binding limit>
-- Out of scope: <one line — what we're explicitly not building>
-```
-
-Wait for an explicit yes before writing. "Sounds good" or "whatever you think" is not a yes — ask "Anything you'd refine?" if the response is ambiguous.
+---
 
 ## Key Points
 
-- Ask user where `specs/` should live—no default assumption
+- Seed input short-circuits brainstorm/interview for topics it already covers — never re-ask answered questions
+- Analysis (A1–A3) runs before any user questions — come to brainstorming with evidence, not a blank form
+- Both paths (new and existing) produce the same three-file output
+- Code Style section must include a real code snippet — extracted from existing code when available, user-provided for new projects
+- Ask user where `specs/` should live — no default assumption
 - All three files go in the chosen `specs/` directory
-- Each file is self-contained but references the others where relevant
-- Code Style section must include a real code snippet, not just description
-- Boundaries should be explicit and enforceable
-- Templates are starting points—customize for your project

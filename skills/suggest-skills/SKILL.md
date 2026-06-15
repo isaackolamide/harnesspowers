@@ -86,8 +86,7 @@ This catalog is the authoritative reference for all installed skills. Update it 
 | Invoke | What It Does | Trigger Conditions |
 |--------|-------------|-------------------|
 | `/using-harnesspowers` | Authoritative routing tree for all three plugins — routes any development task to the right skill | Starting a session, want routing across all plugins |
-| `/sdd-write-spec` | Creates SDD constitution: mission.md, tech-stack.md, roadmap.md | Starting a new project (greenfield) |
-| `/sdd-extract-spec` | Reverse-engineers SDD constitution from existing codebase | Joining an existing project, no specs exist yet (brownfield) |
+| `/sdd-write-spec` | Creates SDD constitution: mission.md, tech-stack.md, roadmap.md — new or existing project | Starting any initiative that needs a spec, greenfield or brownfield |
 | `/sdd-plan-feature` | Plans a feature — outputs plan.md, requirements.md, validation.md | Have an SDD constitution, planning the next feature |
 | `/sdd-implement-plan` | Executes a feature plan slice-by-slice with TDD discipline | Have a plan.md, ready to implement |
 | `/i-need-code-review` | Context-aware review router — recommends the right review tool | Want any kind of code review, not sure which type |

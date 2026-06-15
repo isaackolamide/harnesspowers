@@ -15,7 +15,7 @@ It owns no primitive skills itself. It delegates everything to `agent-skills` (e
 ## Plugin Stack
 
 ```
-harnesspowers (orchestrator)      — 8 SDD workflow skills
+harnesspowers (orchestrator)      — 7 SDD workflow skills
      ↓ delegates to
 agent-skills (primitives)         — 24 engineering skills
 superpowers (discipline)          — TDD, debugging, brainstorming
@@ -26,8 +26,7 @@ superpowers (discipline)          — TDD, debugging, brainstorming
 | Skill | What It Does |
 |-------|-------------|
 | `/using-harnesspowers` | Routing tree — which skill for which task, across all three plugins |
-| `/sdd-write-spec` | Create SDD constitution for a new project (greenfield) |
-| `/sdd-extract-spec` | Extract SDD constitution from an existing codebase (brownfield) |
+| `/sdd-write-spec` | Create or extract SDD constitution — works for new and existing projects |
 | `/sdd-plan-feature` | Plan a feature from the roadmap — outputs plan.md/requirements.md/validation.md |
 | `/sdd-implement-plan` | Execute a feature plan slice-by-slice with TDD discipline |
 | `/i-need-code-review` | Context-aware router for all code review options |
@@ -68,8 +67,7 @@ Then add to `~/.claude/plugins/installed_plugins.json` and enable in `~/.claude/
 ## SDD Workflow
 
 ```
-1. /sdd-write-spec    — Mission, tech stack, roadmap (new project)
-   /sdd-extract-spec  — Same output, from existing codebase
+1. /sdd-write-spec    — Mission, tech stack, roadmap (new or existing project)
 2. /sdd-plan-feature  — Feature plan tied to roadmap phase
 3. /sdd-implement-plan — Slice-by-slice implementation with TDD
 4. /i-need-code-review — Choose the right review approach
