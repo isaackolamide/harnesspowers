@@ -1,0 +1,35 @@
+{
+  "name": "harnesspowers",
+  "description": "SDD workflow orchestrator — unified routing across agent-skills and superpowers for the full development lifecycle",
+  "version": "2.0.0",
+  "author": {
+    "name": "Isaac"
+  },
+  "homepage": "https://github.com/isaackolamide/harnesspowers",
+  "repository": "https://github.com/isaackolamide/harnesspowers",
+  "license": "MIT",
+  "skills": "./skills",
+  "dependencies": {
+    "agent-skills@addy-agent-skills": {
+      "skills": [
+        "incremental-implementation",
+        "interview-me",
+        "idea-refine",
+        "api-and-interface-design",
+        "code-review-and-quality",
+        "security-and-hardening",
+        "ci-cd-and-automation",
+        "observability-and-instrumentation",
+        "documentation-and-adrs",
+        "deprecation-and-migration",
+        "planning-and-task-breakdown"
+      ]
+    },
+    "superpowers@claude-plugins-official": {
+      "skills": ["brainstorming", "writing-plans", "test-driven-development"]
+    },
+    "claude-md-management@claude-plugins-official": {
+      "skills": ["claude-md-improver"]
+    }
+  }
+}
