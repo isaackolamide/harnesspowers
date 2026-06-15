@@ -27,8 +27,8 @@ superpowers (discipline)          — TDD, debugging, brainstorming
 |-------|-------------|
 | `/using-harnesspowers` | Routing tree — which skill for which task, across all three plugins |
 | `/sdd-write-spec` | Create or extract SDD constitution — works for new and existing projects |
-| `/sdd-plan-feature` | Plan a feature from the roadmap — outputs plan.md/requirements.md/validation.md |
-| `/sdd-implement-plan` | Execute a feature plan slice-by-slice with TDD discipline |
+| `/sdd-plan-feature` | Plan a feature from the roadmap — outputs plan.md/requirements.md/validation.md; triggers ADR for significant arch decisions |
+| `/sdd-implement-plan` | Execute a feature plan slice-by-slice — domain-aware dispatch (frontend, API), TDD with testing-patterns reference, docs checklist on completion |
 | `/i-need-code-review` | Context-aware router for all code review options |
 | `/optimise-claude-md` | Audit and improve any project's CLAUDE.md |
 | `/suggest-skills` | Discover the right skill across all installed plugins |
@@ -68,8 +68,8 @@ Then add to `~/.claude/plugins/installed_plugins.json` and enable in `~/.claude/
 
 ```
 1. /sdd-write-spec    — Mission, tech stack, roadmap (new or existing project)
-2. /sdd-plan-feature  — Feature plan tied to roadmap phase
-3. /sdd-implement-plan — Slice-by-slice implementation with TDD
+2. /sdd-plan-feature  — Feature plan + ADRs for arch decisions
+3. /sdd-implement-plan — Domain-aware slices (frontend/API dispatch) + TDD + docs checklist
 4. /i-need-code-review — Choose the right review approach
 ```
 

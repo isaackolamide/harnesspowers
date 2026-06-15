@@ -17,8 +17,8 @@ harnesspowers delegates to the other two. It owns no copies of their skills.
 |-------|---------|
 | `using-harnesspowers` | Authoritative routing tree across all three plugins |
 | `sdd-write-spec` | Constitution: mission.md, tech-stack.md, roadmap.md — new and existing projects |
-| `sdd-plan-feature` | Feature plan: plan.md, requirements.md, validation.md |
-| `sdd-implement-plan` | Slice-by-slice execution with TDD tracking |
+| `sdd-plan-feature` | Feature plan: plan.md, requirements.md, validation.md — triggers ADR for significant arch decisions |
+| `sdd-implement-plan` | Slice-by-slice execution with domain-aware dispatch (frontend, API) + TDD + docs checklist |
 | `i-need-code-review` | Context-aware review router |
 | `optimise-claude-md` | CLAUDE.md audit with discoverability lens |
 | `suggest-skills` | Cross-plugin skill discovery |
