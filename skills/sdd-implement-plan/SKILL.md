@@ -81,7 +81,6 @@ When the primitive builds the implementer brief, also include:
 - CLASSIFY result: "This is a [frontend/API/general] slice. Invoke [domain skill names] before coding."
 - Relevant constraints from `requirements.md` (only what binds this slice)
 - If ADR written: ADR path as implementation context
-- Disciplines required: `agent-skills:incremental-implementation` + `superpowers:test-driven-development` (Red-Green-Refactor)
 - Instruction: commit code changes only — do not touch `plan.md`
 
 **3. SDD ADDITIONS — task reviewer dispatch**
