@@ -1,14 +1,14 @@
 ---
 name: sdd-implement-plan
-description: Execute a feature plan produced by sdd-plan-feature — wraps agent-skills:incremental-implementation and superpowers:test-driven-development, drives slice-by-slice execution with plan.md progress tracking, and hands off to /i-need-code-review on completion
+description: Execute a feature plan — 3-way mode (subagent-driven with per-slice review, autonomous inline, or checkpoint inline), domain-aware dispatch, TDD enforced, plan.md progress tracking, hands off to /i-need-code-review on completion
 metadata:
   type: implementation
-  composesWith: [agent-skills:incremental-implementation, superpowers:test-driven-development]
+  composesWith: [agent-skills:incremental-implementation, superpowers:test-driven-development, superpowers:subagent-driven-development]
 ---
 
 # SDD Implementation Driver
 
-Execute a feature plan produced by `/sdd-plan-feature`. This skill wraps `agent-skills:incremental-implementation` and `superpowers:test-driven-development` to guarantee co-invocation of both primitives — closing the triggering gap in the SDD workflow.
+Execute a feature plan produced by `/sdd-plan-feature`. This skill wraps `agent-skills:incremental-implementation`, `superpowers:test-driven-development`, and `superpowers:subagent-driven-development` to guarantee co-invocation of the right primitives — closing the triggering gap in the SDD workflow.
 
 ## Position in the SDD Trilogy
 
@@ -36,7 +36,10 @@ Read all three files before any code is touched:
 
 Before starting any slice, ask once using AskUserQuestion:
 
-> "Run in **autonomous mode** (proceed through all slices without pausing) or **checkpoint mode** (pause after each slice for your confirmation)?"
+> "How should slices be executed?
+>   - **Subagent-driven** *(recommended for ≥4 slices or production features)* — fresh subagent per slice + spec compliance review + code quality review per slice. Continuous only. Best for preserving context over long plans.
+>   - **Autonomous** — current session executes each slice inline, no pauses. Best for small plans or prototypes.
+>   - **Checkpoint** — current session executes each slice inline, pauses after each slice for confirmation."
 
 Do not ask again during execution.
 
@@ -46,15 +49,19 @@ For each unchecked task in `plan.md`, in order:
 
 **0. CLASSIFY**
 
-Read the task name and description from `plan.md`. Match against these keyword groups and invoke matching domain skills *before* coding:
+Read the task name and description from `plan.md`. Match against these keyword groups:
 
-| Keywords in task name/description | Invoke (in order) |
-|-----------------------------------|-------------------|
+| Keywords in task name/description | Domain skills |
+|-----------------------------------|---------------|
 | `frontend`, `UI`, `component`, `page`, `layout`, `design`, `style` | `frontend-design:frontend-design` → `agent-skills:frontend-ui-engineering` |
 | `API`, `endpoint`, `schema`, `interface`, `contract`, `route` | `agent-skills:api-and-interface-design` → if a significant choice between alternatives is present, also `agent-skills:documentation-and-adrs` (write ADR before coding) |
 | anything else | no domain skill |
 
 Ambiguous slices default to no domain skill — bias toward fewer invocations.
+
+Mode-aware fork after classification:
+- **Inline mode**: invoke matching domain skills directly before coding (as step 2 if applicable)
+- **Subagent-driven mode**: embed domain skill name(s) as text instructions in the implementer prompt — do not invoke directly. If an ADR is needed, write it at the controller level *before* dispatching the subagent, then pass the ADR path as context.
 
 **1. ANNOUNCE**
 
@@ -62,7 +69,55 @@ Ambiguous slices default to no domain skill — bias toward fewer invocations.
 
 Show any scope constraints from `requirements.md` relevant to this slice.
 
-**2. INVOKE agent-skills:incremental-implementation**
+---
+
+#### Subagent-Driven Mode
+
+Follow `superpowers:subagent-driven-development` discipline for this slice.
+
+**2. DISPATCH implementer subagent**
+
+Build the implementer prompt with all necessary context — the subagent must not need to read spec files:
+- Full task text from `plan.md`
+- Relevant constraints from `requirements.md`
+- CLASSIFY result: "This is a [frontend/API/general] slice. Invoke [domain skill names] before coding."
+- If ADR written: "ADR at [path]. Use as implementation context."
+- Disciplines required: `agent-skills:incremental-implementation` + `superpowers:test-driven-development` (Red-Green-Refactor)
+- Instruction: tick `plan.md` `[ ]` → `[x]` and commit atomically with slice code when done
+
+The subagent reports status: DONE / DONE_WITH_CONCERNS / NEEDS_CONTEXT / BLOCKED.
+
+Status handling:
+- DONE → proceed to spec compliance review
+- DONE_WITH_CONCERNS → address if correctness/scope issue; note and proceed if observational
+- NEEDS_CONTEXT → provide missing context and re-dispatch
+- BLOCKED → assess: re-dispatch with context, escalate model, break down task, or surface to user
+
+**3. SPEC COMPLIANCE REVIEW**
+
+Dispatch spec reviewer subagent with: slice task text, full `requirements.md`, git diff of the slice commit. Confirms all requirements met, nothing extra built. Loop until pass.
+
+Never start code quality review before spec compliance passes.
+
+**4. CODE QUALITY REVIEW**
+
+Dispatch code quality reviewer subagent with the git diff. Loop until pass.
+
+**5. NEXT SLICE**
+
+Proceed immediately to the next unchecked task. No checkpoint in subagent-driven mode.
+
+---
+
+#### Inline Mode (autonomous or checkpoint)
+
+**2. INVOKE domain skills (if applicable)**
+
+If CLASSIFY matched a domain, invoke the matching skills directly before coding:
+- Frontend slice: `frontend-design:frontend-design` → `agent-skills:frontend-ui-engineering`
+- API slice: `agent-skills:api-and-interface-design` → write ADR if significant choice present
+
+**3. INVOKE agent-skills:incremental-implementation**
 
 Apply the incremental-implementation discipline for this slice:
 - One logical thing only — do not mix concerns
@@ -70,7 +125,7 @@ Apply the incremental-implementation discipline for this slice:
 - Rule 0.5: touch only what this task requires; note but do not fix anything outside scope
 - The slice must leave the codebase compilable with all tests passing
 
-**3. INVOKE superpowers:test-driven-development**
+**4. INVOKE superpowers:test-driven-development**
 
 Follow Red-Green-Refactor strictly:
 - Write ONE failing test showing the desired behaviour
@@ -83,14 +138,14 @@ For framework-specific test patterns, structure conventions, and anti-patterns r
 
 **Failure rule:** If a RED test will not go green after a reasonable attempt, block regardless of mode. Surface the problem to the user. Never skip a failing test to preserve momentum.
 
-**4. VERIFY**
+**5. VERIFY**
 
 Using commands from `specs/mission.md` Quick Commands (if available), run in sequence:
 - Test suite passes
 - Build clean
 - Type check passes
 
-**5. TICK + COMMIT**
+**6. TICK + COMMIT**
 
 Update `plan.md`: mark the completed task `[ ]` → `[x]`
 
@@ -103,11 +158,13 @@ git commit -m "[task name from plan.md]"
 
 Never tick and commit separately — they must be atomic.
 
-**6. CHECKPOINT (checkpoint mode only)**
+**7. CHECKPOINT (checkpoint mode only)**
 
 > "Slice N complete. Continue to slice N+1: [next task name]?"
 
 Autonomous mode: proceed immediately to the next slice.
+
+---
 
 ### Step 5: All Slices Complete
 
@@ -123,14 +180,16 @@ When all checkboxes in `plan.md` are ticked:
    - Changelog entry for user-facing changes?
    - API docs / type definitions current?
 5. When all confirmed:
-   > "Implementation complete and validated. Next step: `/i-need-code-review`"
-
-Do **not** auto-invoke `/i-need-code-review`. The user triggers it explicitly.
+   > "Implementation complete and validated. Run `/i-need-code-review` for a context-aware review recommendation."
 
 ## Key Rules
 
 - Always read all three spec files before touching code
 - Always ask mode once — never mid-execution
-- Always tick `plan.md` and commit together — never separately
 - Never skip a failing test regardless of mode
 - Never proceed past `validation.md` if any criterion is unmet
+- **Inline mode**: orchestrator invokes domain skills directly and commits tick atomically with code
+- **Inline mode**: orchestrator invokes `superpowers:test-driven-development` directly — never delegate TDD to a subagent
+- **Subagent-driven mode**: CLASSIFY and any ADR decisions must complete before the implementer subagent is dispatched
+- **Subagent-driven mode**: never invoke `superpowers:test-driven-development` at the controller level — TDD is the subagent's responsibility
+- **Subagent-driven mode**: spec compliance must pass before code quality review begins

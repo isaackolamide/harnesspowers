@@ -18,7 +18,7 @@ harnesspowers delegates to the other four. It owns no copies of their skills.
 - `using-harnesspowers` — Authoritative routing tree across all plugins
 - `sdd-write-spec` — Creates specs: mission.md, tech-stack.md, roadmap.md
 - `sdd-plan-feature` — Creates YYYY-MM-DD-{feature}/plan.md, requirements.md, validation.md
-- `sdd-implement-plan` — Executes feature plan slice-by-slice with TDD
+- `sdd-implement-plan` — Executes feature plan: subagent-driven (per-slice review) or inline (autonomous/checkpoint), domain-aware dispatch, TDD enforced
 - `i-need-code-review` — Context-aware review router
 - `optimise-claude-md` — CLAUDE.md / AGENTS.md audit with discoverability lens
 - `suggest-skills` — Cross-plugin skill discovery

@@ -26,7 +26,8 @@ Task arrives
     │                                               (wraps agent-skills:planning-and-task-breakdown + superpowers:writing-plans)
     │
     ├── Executing a feature plan?                → harnesspowers:sdd-implement-plan
-    │                                               (wraps agent-skills:incremental-implementation + superpowers:test-driven-development)
+    │                                               (wraps incremental-implementation + TDD + subagent-driven-development;
+    │                                                3-way mode: subagent-driven, autonomous, or checkpoint)
     │
     ├── Implementing code (no plan)?             → agent-skills:incremental-implementation
     │   ├── Designing APIs or interfaces?        → agent-skills:api-and-interface-design
