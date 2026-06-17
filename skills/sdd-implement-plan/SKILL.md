@@ -98,11 +98,12 @@ git add specs/[feature-dir]/plan.md
 git commit -m "✓ [task name] reviewed"
 ```
 
+If the task is represented with no checkbox, insert `- [ ]` as the first line under that heading before ticking.
 `[x]` means the same thing in all three modes: code committed and review cleared.
 
 **5. NEXT SLICE**
 
-Proceed immediately to the next unchecked task. No checkpoint in subagent-driven mode.
+Proceed immediately to the next unchecked/pending task. No checkpoint in subagent-driven mode.
 
 ---
 
@@ -144,6 +145,7 @@ Using commands from `specs/mission.md` Quick Commands (if available), run in seq
 
 **6. TICK + COMMIT**
 
+If the task is represented with no checkbox, insert `- [ ]` as the first line under that heading before ticking.
 Update `plan.md`: mark the completed task `[ ]` → `[x]`
 
 Commit slice code and updated `plan.md` together:

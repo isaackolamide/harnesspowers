@@ -175,8 +175,6 @@ specs/
 
 Executable implementation plan produced by `superpowers:writing-plans`. Format is owned by that skill — do not reformat or simplify the output.
 
-After writing-plans produces the plan, convert task items to markdown checkboxes (`- [ ]`). Preserve all other formatting, prose, and structure.
-
 ### requirements.md
 
 Scope and context to guide implementation:
