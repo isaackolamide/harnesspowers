@@ -3,12 +3,12 @@ name: sdd-implement-plan
 description: Execute a feature plan — 3-way mode (subagent-driven with per-slice review, autonomous inline, or checkpoint inline), domain-aware dispatch, TDD enforced, plan.md progress tracking, hands off to /i-need-code-review on completion
 metadata:
   type: implementation
-  composesWith: [agent-skills:incremental-implementation, superpowers:test-driven-development, superpowers:subagent-driven-development]
+  composesWith: [superpowers:test-driven-development, superpowers:subagent-driven-development]
 ---
 
 # SDD Implementation Driver
 
-Execute a feature plan produced by `/sdd-plan-feature`. This skill wraps `agent-skills:incremental-implementation`, `superpowers:test-driven-development`, and `superpowers:subagent-driven-development` to guarantee co-invocation of the right primitives — closing the triggering gap in the SDD workflow.
+Execute a feature plan produced by `/sdd-plan-feature`. This skill wraps `superpowers:test-driven-development` and `superpowers:subagent-driven-development` to guarantee co-invocation of the right primitives — closing the triggering gap in the SDD workflow.
 
 ## Position in the SDD Trilogy
 
@@ -114,9 +114,9 @@ If CLASSIFY matched a domain, invoke the matching skills directly before coding:
 - Frontend slice: `frontend-design:frontend-design` → `agent-skills:frontend-ui-engineering`
 - API slice: `agent-skills:api-and-interface-design` → write ADR if significant choice present
 
-**3. INVOKE agent-skills:incremental-implementation**
+**3. SLICE CONSTRAINTS**
 
-Apply the incremental-implementation discipline for this slice:
+Before writing any code, verify these constraints hold for this slice:
 - One logical thing only — do not mix concerns
 - Rule 0: simplest thing that could work
 - Rule 0.5: touch only what this task requires; note but do not fix anything outside scope

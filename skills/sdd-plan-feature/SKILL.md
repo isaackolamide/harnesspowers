@@ -175,6 +175,8 @@ specs/
 
 Executable implementation plan produced by `superpowers:writing-plans`. Format is owned by that skill — do not reformat or simplify the output.
 
+After writing-plans produces the plan, convert task items to markdown checkboxes (`- [ ]`). Preserve all other formatting, prose, and structure.
+
 ### requirements.md
 
 Scope and context to guide implementation:
@@ -215,8 +217,12 @@ Definition of "done" — how to confirm implementation is mergeable:
 # Validation: {feature-name}
 
 ## Acceptance Criteria
-- [ ] Criterion 1
-- [ ] Criterion 2
+
+For behavioral criteria, prefer Given/When/Then:
+- [ ] Given [context], When [action], Then [outcome]
+
+For non-functional or structural criteria, a plain statement is fine:
+- [ ] Criterion
 
 ## Test Coverage
 - [ ] Unit tests pass for new logic
