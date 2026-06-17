@@ -22,7 +22,7 @@ Task arrives
     ├── Need specs for a project (new or existing)? → harnesspowers:sdd-write-spec
     │                                               (wraps superpowers:brainstorming + agent-skills:interview-me + codebase analysis)
     │
-    ├── Planning a feature from roadmap?         → harnesspowers:sdd-plan-feature
+    ├── Planning a feature?                      → harnesspowers:sdd-plan-feature
     │                                               (wraps agent-skills:planning-and-task-breakdown + superpowers:writing-plans)
     │
     ├── Executing a feature plan?                → harnesspowers:sdd-implement-plan
