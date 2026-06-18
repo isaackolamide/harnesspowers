@@ -37,6 +37,12 @@ claude-md-management (tooling)    — CLAUDE.md audit and improvement
 
 ## Installation
 
+> **SSH blocked?** If your network blocks SSH connections to GitHub, run this once before installing:
+> ```bash
+> git config --global url."https://github.com/".insteadOf "git@github.com:"
+> ```
+> This rewrites any `git@github.com:` URLs to HTTPS automatically.
+
 ### Platform Integration Guides
 
 #### 1. Claude Code
