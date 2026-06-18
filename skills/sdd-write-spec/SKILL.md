@@ -8,11 +8,141 @@ metadata:
 
 # Software Design Document (SDD) Generator
 
-Create a structured specification "constitution" with three core files in your project's `specs/` directory. Works for new projects and new initiatives inside an existing codebase.
+Create a structured specification "constitution" with three core files in your project's `specs/` directory. Works for new projects and new initiatives inside an existing codebase. When a constitution already exists and you have product requirements for a specific feature, switches to **Feature Spec Mode** — updates the roadmap and creates a scoped feature spec ready for `sdd-plan-feature`.
 
 ## Workflow
 
-### Pre-Step 0: Seed Input Check
+### Pre-Step 0: Constitution Detection
+
+**Before anything else**, check whether all three constitution files exist:
+
+```
+specs/mission.md
+specs/tech-stack.md
+specs/roadmap.md
+```
+
+- **All three exist** → **Feature Spec Mode** (jump to that section below). Do not run Constitution Mode.
+- **None exist** → Constitution Mode (continue with Pre-Step 1 below).
+- **Partial** (only some files exist): surface the gap — ask the user whether they intend to complete the constitution or start fresh before proceeding.
+
+---
+
+## Feature Spec Mode
+
+Entered only when all three constitution files exist.
+
+**Do not run brainstorming. Do not create `tech-stack.md`. Do not create a feature-level `roadmap.md`.**
+
+### FS-1: Read Constitution + Parse Requirements
+
+1. Read `specs/mission.md`, `specs/tech-stack.md`, `specs/roadmap.md`
+2. If seed requirements were provided, parse them through the feature lens:
+   - **Objective** — what does this feature do?
+   - **Who** — who benefits?
+   - **Why now** — what triggered this?
+   - **Acceptance Criteria** — what does "done" look like?
+   - **Constraints** — time, scope, compatibility limits
+   - **Dependencies** — which existing system components or in-progress features does this touch?
+
+   If no seed was provided, ask: "What feature are you building?" and proceed from the answer.
+
+### FS-2: Constitution Alignment Check
+
+Map the requirements against the existing constitution. **This is a STOP step** — resolve "Never Do" conflicts before proceeding.
+
+Check against `specs/mission.md`:
+- **"Never Do" violations** — hard blockers. Name them explicitly and wait for user resolution before continuing.
+- **"Ask First" items** — flag items needing stakeholder approval. Do not block, but surface them as explicit flags in the output.
+- **Roadmap fit** — identify which existing phase this feature belongs to, or whether it opens a new one.
+
+### FS-3: Confirmation Gate
+
+Present a restate before writing anything:
+
+```
+Feature:                <name>
+Objective:              <one line>
+User:                   <one line>
+Why now:                <one line>
+Acceptance Criteria:
+  - <criterion>
+In scope:
+  - <item>
+Out of scope:           <one line>
+Dependencies:
+  - <dependency>
+Stakeholder flags:      <"Ask First" hits — or "none">
+Constitution conflicts: <"Never Do" hits — or "none">
+```
+
+Wait for explicit "yes" before writing. "Sounds good" or "whatever you think" is not a yes — ask "Anything to refine?" if the response is ambiguous.
+
+### FS-4: Update Project Roadmap
+
+Edit `specs/roadmap.md` — add the feature as a new milestone, sub-item, or phase entry under the appropriate existing phase.
+
+Do **not** create a feature-level `roadmap.md`. The project roadmap is the single source of truth for all phases.
+
+### FS-5: Create Feature Spec
+
+Create `specs/features/YYYY-MM-DD-<feature-name>-spec.md`.
+
+This file is the direct input to `sdd-plan-feature`. Hand off with:
+```
+/sdd-plan-feature specs/features/YYYY-MM-DD-<feature-name>-spec.md
+```
+
+**Output:**
+```
+specs/
+├── roadmap.md                                      ← updated
+└── features/
+    └── YYYY-MM-DD-<feature-name>-spec.md           ← created
+```
+
+---
+
+## Feature Spec Template
+
+```markdown
+# Feature Spec: {feature-name}
+
+## Objective
+What this feature does and why it exists now.
+
+## User & Stakeholder
+Who benefits; who requested it.
+
+## Acceptance Criteria
+- [ ] Given [context], When [action], Then [outcome]
+
+## Technical Constraints
+(derived from specs/mission.md boundaries and specs/tech-stack.md)
+- [Boundary or constraint]
+
+## In Scope
+- [Item]
+
+## Out of Scope
+- [Item]
+
+## Dependencies
+- [Existing system component or in-progress feature this touches]
+
+## Stakeholder Flags
+(mission.md "Ask First" items this feature touches — require explicit approval before implementation)
+- [Flag — or "none"]
+
+## Success Metrics
+How we know this feature worked.
+```
+
+---
+
+## Constitution Mode
+
+### Pre-Step 1: Seed Input Check
 
 Check if the user provided any context when invoking the skill — draft ideas, requirements notes, a pasted brief, or bullet points.
 
@@ -27,7 +157,7 @@ Accepted seed formats: free-form text, pasted requirements doc, bullet-point ide
 
 ---
 
-### Pre-Step 1: Context Check
+### Pre-Step 2: Context Check
 
 Ask: **"Is there an existing codebase for this initiative?"**
 

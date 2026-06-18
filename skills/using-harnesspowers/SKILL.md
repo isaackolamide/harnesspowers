@@ -19,8 +19,13 @@ Task arrives
     ├── Vague / don't know what to build yet?   → agent-skills:interview-me
     ├── Rough concept, need to explore variants? → agent-skills:idea-refine
     │
-    ├── Need specs for a project (new or existing)? → harnesspowers:sdd-write-spec
-    │                                               (wraps superpowers:brainstorming + agent-skills:interview-me + codebase analysis)
+    ├── Need a spec?
+    │   ├── No constitution yet                  → harnesspowers:sdd-write-spec (constitution mode)
+    │   │                                           (wraps superpowers:brainstorming + agent-skills:interview-me + codebase analysis)
+    │   │                                           outputs: specs/mission.md, specs/tech-stack.md, specs/roadmap.md
+    │   ├── Constitution exists + feature reqs   → harnesspowers:sdd-write-spec (feature spec mode)
+    │   │                                           updates specs/roadmap.md, creates specs/features/YYYY-MM-DD-<name>-spec.md
+    │   └── Have a feature spec, want a plan     → harnesspowers:sdd-plan-feature
     │
     ├── Planning a feature?                      → harnesspowers:sdd-plan-feature
     │                                               (wraps agent-skills:planning-and-task-breakdown + superpowers:writing-plans)
