@@ -98,11 +98,13 @@ Wait for explicit "yes" confirmation before proceeding.
 Establish the feature name for the output directory.
 
 - If inferrable from seed input or interview output, propose it:
-  > "I'll name this feature `{proposed-name}` (directory: `specs/YYYY-MM-DD-{proposed-name}/`). Good?"
+  > "I'll name this feature `{proposed-name}` (directory: `specs/plans/YYYY-MM-DD-{proposed-name}/`). Good?"
 - If not inferrable, ask:
-  > "What should this feature be called? (used as `specs/YYYY-MM-DD-{name}/`)"
+  > "What should this feature be called? (used as `specs/plans/YYYY-MM-DD-{name}/`)"
 
 This is a single question — not an interview. Branch strategy is **not** asked here; it belongs to implementation time and is handled by `sdd-implement-plan` or `agent-skills:git-workflow-and-versioning`.
+
+Create the feature directory `specs/plans/YYYY-MM-DD-{feature-name}/` immediately after the name is confirmed. This ensures a landing spot for the breakdown written in Step 4a.
 
 ### Step 4a: Run Planning-and-Task-Breakdown
 
@@ -114,6 +116,10 @@ Trigger `agent-skills:planning-and-task-breakdown` with:
 
 **User confirmation gate:** Do not proceed to Step 4b until the task order, sizing, and checkpoints are confirmed.
 
+**CRITICAL:** The breakdown produced here is a confirmation artifact only — it is NOT plan.md and must NOT be written to disk as plan.md. Step 4b transforms it into the final format.
+
+After user confirms, write the breakdown to `specs/plans/YYYY-MM-DD-{feature-name}/breakdown.md`. This persists the task list against context compaction or session interruption — Step 4b reads from this file.
+
 **ADR trigger:** When decomposition surfaces a significant architectural or technology choice (framework selection, data model, auth strategy, API architecture, or any decision expensive to reverse):
 - Invoke `agent-skills:documentation-and-adrs`
 - **Save location:** `docs/decisions/ADR-{NNN}-{title}.md` — sequential numbering; check existing files to determine next number. ADRs are project-level artifacts and are **not** saved inside the feature directory.
@@ -123,7 +129,9 @@ Apply the ADR trigger only to choices where the rationale and rejected alternati
 
 ### Step 4b: Run Writing-Plans
 
-Trigger `superpowers:writing-plans` on the structured task list from Step 4a, using project context from Step 1 as background. Output location: `specs/YYYY-MM-DD-{feature-name}/plan.md` (not writing-plans' default `docs/superpowers/plans/`).
+Trigger `superpowers:writing-plans` using `specs/plans/YYYY-MM-DD-{feature-name}/breakdown.md` as the task source. If Step 4a's output is not in context (e.g., after compaction or session restart), read that file before triggering. Use project context from Step 1 as background. Its output becomes plan.md.
+
+Output location: `specs/plans/YYYY-MM-DD-{feature-name}/plan.md` (not writing-plans' default `docs/superpowers/plans/`).
 
 ### Step 5: Pre-Write Review
 
@@ -131,7 +139,7 @@ Before writing any file to disk, present a structured summary of what will be wr
 
 **Present summary:**
 ```
-I'm about to write three files to specs/YYYY-MM-DD-{feature-name}/:
+I'm about to write three files to specs/plans/YYYY-MM-DD-{feature-name}/:
 
 plan.md:
   - {N} task groups, {M} total tasks
@@ -162,12 +170,14 @@ validation.md:
 Create the feature directory and generate the three files:
 
 ```
-specs/
+specs/plans/
 └── YYYY-MM-DD-{feature-name}/
-    ├── plan.md          → Numbered task groups (what to build, in order)
+    ├── plan.md          → TDD implementation plan from writing-plans
     ├── requirements.md  → Scope, decisions, context, out-of-scope
     └── validation.md    → How to know implementation succeeded and can be merged
 ```
+
+`breakdown.md` is written during Step 4a as a context-safety handoff. Delete it after `plan.md` is confirmed written in Step 6.
 
 ## File Templates
 
@@ -249,18 +259,19 @@ When you invoke `/sdd-plan-feature`:
 4. Assess minimum viable fields (Who/Why/Success/Constraint) — if all present, skip to Step 6 (feature naming)
 5. If any core field is missing: invoke `agent-skills:interview-me` — one question at a time, informed by project context; require explicit "yes" before continuing
 6. Probe Dependencies if not already clear from context
-7. Confirm feature name (propose if inferrable; otherwise ask a single question)
+7. Confirm feature name (propose if inferrable; otherwise ask a single question) — create `specs/plans/YYYY-MM-DD-{feature-name}/` directory immediately after confirmation
 8. Trigger `agent-skills:planning-and-task-breakdown` — dependency graph, vertical slices, task sizing, checkpoints
 9. If a significant architectural decision surfaces: invoke `agent-skills:documentation-and-adrs` → save to `docs/decisions/ADR-{NNN}-{title}.md`; cross-reference in requirements.md
-10. Confirm task order and sizing with user before continuing
-11. Trigger `superpowers:writing-plans` on the structured task list — output to `specs/YYYY-MM-DD-{feature-name}/plan.md`
+10. Confirm task order and sizing with user before continuing — then write the confirmed breakdown to `specs/plans/YYYY-MM-DD-{feature-name}/breakdown.md`
+11. Trigger `superpowers:writing-plans` using `breakdown.md` as the source — its output becomes plan.md; save to `specs/plans/YYYY-MM-DD-{feature-name}/plan.md`
 12. Present pre-write summary of all three files — ask focused probe; resolve concerns before writing
-13. Create `specs/YYYY-MM-DD-{feature-name}/` directory and write plan.md, requirements.md, and validation.md
+13. Write plan.md, requirements.md, and validation.md to `specs/plans/YYYY-MM-DD-{feature-name}/` — then delete `breakdown.md`
 
 ## Key Points
 
 - Minimum viable fields check (Who/Why/Success/Constraint + Dependencies) gates interview-me — only invoke the deep interview when fields are genuinely missing
 - Two-pass planning: breakdown first (order + sizing), writing-plans second (executable detail) — never skip the breakdown pass
+- breakdown.md is a temporary handoff file — written after Step 4a confirmation, read by Step 4b if context is lost, deleted after plan.md is written
 - ADRs are project-level artifacts saved to `docs/decisions/` with sequential numbering — not in the feature directory
 - Pre-write review probes for gaps with a structured summary and a focused probe question before committing files to disk
 - requirements.md makes out-of-scope explicit, not just in-scope
