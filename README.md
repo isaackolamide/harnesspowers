@@ -97,17 +97,78 @@ cp <path-to-harnesspowers>/.github/copilot-instructions.md <your-project-root>/.
 ln -sf <path-to-harnesspowers> ~/.copilot/plugins/harnesspowers
 ```
 
-## SDD Workflow
+## How to Use
 
+Three commands, run in order. Pick the entry point that fits your situation.
+
+### Starting fresh — no constitution yet
+
+```text
+/sdd-write-spec      # Interviews you → specs/mission.md, tech-stack.md, roadmap.md
+/sdd-plan-feature    # "Add user authentication" → plan.md, requirements.md, validation.md
+/sdd-implement-plan  # Builds slice by slice with TDD, ends with code review
 ```
-1. /sdd-write-spec    — Mission, tech stack, roadmap (new or existing project)
-2. /sdd-plan-feature  — Feature plan + ADRs for arch decisions
-3. /sdd-implement-plan — 3-way mode (subagent-driven / autonomous / checkpoint) + TDD + validation gate + code review
+
+For an existing codebase, `sdd-write-spec` reads your file structure and 50 commits of git history before asking anything.
+
+### Constitution exists — adding a new feature
+
+```text
+/sdd-write-spec      # Feature Spec Mode → specs/features/YYYY-MM-DD-{name}-spec.md
+/sdd-plan-feature    # Reads feature spec → plan.md, requirements.md, validation.md
+/sdd-implement-plan
 ```
+
+Once `specs/mission.md`, `tech-stack.md`, and `roadmap.md` exist, `sdd-write-spec` switches to Feature Spec Mode: it maps your requirements against `mission.md` boundaries, checks for "never do" conflicts, and creates a scoped spec file instead of rewriting the constitution.
+
+### Feature is clear — skip the spec
+
+```text
+You already know what to build and the codebase is familiar.
+/sdd-plan-feature    # Describe the feature directly → plan.md, requirements.md, validation.md
+/sdd-implement-plan
+```
+
+### What each step produces
+
+**`/sdd-write-spec`** — no constitution yet:
+
+- `specs/mission.md` — objective, boundaries, "never do" list
+- `specs/tech-stack.md` — folder layout, code style, test strategy
+- `specs/roadmap.md` — phases and milestones
+
+**`/sdd-write-spec`** — constitution exists (Feature Spec Mode):
+
+- `specs/features/YYYY-MM-DD-{name}-spec.md` — scoped feature spec, direct input to `sdd-plan-feature`
+- `specs/roadmap.md` — updated with the new feature milestone
+
+**`/sdd-plan-feature`**:
+
+- `specs/plans/YYYY-MM-DD-{name}/plan.md` — TDD task list, slice by slice
+- `specs/plans/YYYY-MM-DD-{name}/requirements.md` — scope, decisions, out-of-scope
+- `specs/plans/YYYY-MM-DD-{name}/validation.md` — acceptance criteria, definition of done
+- `docs/decisions/ADR-{NNN}.md` — written automatically when a significant architectural choice surfaces
+
+**`/sdd-implement-plan`**:
+
+- Commits per slice; `plan.md` checkboxes ticked atomically with each commit
+
+### Inside each command
+
+**`/sdd-plan-feature`** shows you a structured summary of all three output files *before writing them* and asks a focused probe question. When a significant architectural decision surfaces during planning (framework choice, data model, auth strategy), it writes an ADR to `docs/decisions/ADR-{NNN}.md` — outside the feature directory so it outlives the feature.
+
+**`/sdd-implement-plan`** asks once how slices should run:
+
+- **Subagent-driven** *(recommended for ≥4 slices)* — fresh subagent per slice; spec compliance + code quality review between each. Best for long plans where context preservation matters.
+- **Autonomous** — single session, no pauses. Best for small plans or prototypes.
+- **Checkpoint** — single session, pauses after each slice for your confirmation.
+
+Inline modes enforce Red-Green-Refactor strictly: one failing test written before any code, minimal code to pass it, refactor only after green. After all slices, a **validation gate** walks through every criterion in `validation.md` before anything is declared done — no criterion unmet, no merge. The session closes with `agent-skills:code-review-and-quality` reviewing the full feature diff.
 
 ## What's NOT in This Plugin
 
 Skills that used to be copied here now live in `agent-skills` directly:
+
 - interview-me, idea-refine
 - incremental-implementation, api-and-interface-design
 - code-review-and-quality, security-and-hardening
