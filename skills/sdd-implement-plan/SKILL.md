@@ -15,7 +15,7 @@ Execute a feature plan produced by `/sdd-plan-feature`. This skill wraps `superp
 ```
 /sdd-write-spec      → specs/mission.md, tech-stack.md, roadmap.md
 /sdd-plan-feature    → specs/YYYY-MM-DD-{feature}/plan.md, requirements.md, validation.md
-/sdd-implement-plan  → commits per slice (plan.md checkboxes ticked) → /i-need-code-review
+/sdd-implement-plan  → commits per slice; plan.md checkboxes ticked per-slice (inline) or batched at end (subagent) → /i-need-code-review
 ```
 
 ## Workflow
@@ -89,17 +89,15 @@ When the primitive dispatches the task reviewer, also include:
 - Full `requirements.md` — the spec compliance verdict requires the actual spec
 - Relevant constraints from `requirements.md` for this slice
 
-**4. TICK + COMMIT (controller)**
+**4. LEDGER UPDATE (controller)**
 
-After the task review passes, the controller ticks `plan.md` and commits it alone:
+After the task review passes, append one line to the progress ledger:
 
-```bash
-git add specs/[feature-dir]/plan.md
-git commit -m "✓ [task name] reviewed"
+```
+Task N: complete (commits <base7>..<head7>, review clean)
 ```
 
-If the task is represented with no checkbox, insert `- [ ]` as the first line under that heading before ticking.
-`[x]` means the same thing in all three modes: code committed and review cleared.
+Do not touch `plan.md` here — checkboxes are updated in a single batch at Step 5 once all slices are complete.
 
 **5. NEXT SLICE**
 
@@ -167,7 +165,14 @@ Autonomous mode: proceed immediately to the next slice.
 
 ### Step 5: All Slices Complete
 
-When all checkboxes in `plan.md` are ticked:
+**Subagent-driven mode:** tick all checkboxes in `plan.md` and commit. If any task has no checkbox, insert `- [ ]` before ticking:
+
+```bash
+git add specs/[feature-dir]/plan.md
+git commit -m "✓ all slices complete"
+```
+
+Once all checkboxes in `plan.md` are ticked:
 
 1. Print the full contents of `validation.md`
 2. Walk through each criterion:
@@ -192,4 +197,4 @@ When all checkboxes in `plan.md` are ticked:
 - **Subagent-driven mode**: `superpowers:subagent-driven-development` is the authority for the general dispatch process — this skill's subagent steps are additions only, never re-statements of the primitive's steps
 - **Subagent-driven mode**: CLASSIFY and any ADR decisions must complete before the implementer is dispatched
 - **Subagent-driven mode**: never invoke `superpowers:test-driven-development` at the controller level — TDD is the subagent's responsibility
-- **Subagent-driven mode**: the implementer commits code only — the controller ticks `plan.md` and commits it after the task review passes
+- **Subagent-driven mode**: the implementer commits code only — the controller updates the progress ledger after each review; `plan.md` checkboxes are committed in a single batch at Step 5
