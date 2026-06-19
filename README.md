@@ -104,7 +104,7 @@ Three commands, run in order. Pick the entry point that fits your situation.
 ### Starting fresh — no constitution yet
 
 ```text
-/sdd-write-spec      # Interviews you → specs/mission.md, tech-stack.md, roadmap.md
+/sdd-write-spec      # Interviews you → sdd-specs/mission.md, tech-stack.md, roadmap.md
 /sdd-plan-feature    # "Add user authentication" → plan.md, requirements.md, validation.md
 /sdd-implement-plan  # Builds slice by slice with TDD, ends with code review
 ```
@@ -114,12 +114,12 @@ For an existing codebase, `sdd-write-spec` reads your file structure and 50 comm
 ### Constitution exists — adding a new feature
 
 ```text
-/sdd-write-spec      # Feature Spec Mode → specs/features/YYYY-MM-DD-{name}-spec.md
+/sdd-write-spec      # Feature Spec Mode → sdd-specs/features/YYYY-MM-DD-{name}-spec.md
 /sdd-plan-feature    # Reads feature spec → plan.md, requirements.md, validation.md
 /sdd-implement-plan
 ```
 
-Once `specs/mission.md`, `tech-stack.md`, and `roadmap.md` exist, `sdd-write-spec` switches to Feature Spec Mode: it maps your requirements against `mission.md` boundaries, checks for "never do" conflicts, and creates a scoped spec file instead of rewriting the constitution.
+Once `sdd-specs/mission.md`, `tech-stack.md`, and `roadmap.md` exist, `sdd-write-spec` switches to Feature Spec Mode: it maps your requirements against `mission.md` boundaries, checks for "never do" conflicts, and creates a scoped spec file instead of rewriting the constitution.
 
 ### Feature is clear — skip the spec
 
@@ -133,20 +133,20 @@ You already know what to build and the codebase is familiar.
 
 **`/sdd-write-spec`** — no constitution yet:
 
-- `specs/mission.md` — objective, boundaries, "never do" list
-- `specs/tech-stack.md` — folder layout, code style, test strategy
-- `specs/roadmap.md` — phases and milestones
+- `sdd-specs/mission.md` — objective, boundaries, "never do" list
+- `sdd-specs/tech-stack.md` — folder layout, code style, test strategy
+- `sdd-specs/roadmap.md` — phases and milestones
 
 **`/sdd-write-spec`** — constitution exists (Feature Spec Mode):
 
-- `specs/features/YYYY-MM-DD-{name}-spec.md` — scoped feature spec, direct input to `sdd-plan-feature`
-- `specs/roadmap.md` — updated with the new feature milestone
+- `sdd-specs/features/YYYY-MM-DD-{name}-spec.md` — scoped feature spec, direct input to `sdd-plan-feature`
+- `sdd-specs/roadmap.md` — updated with the new feature milestone
 
 **`/sdd-plan-feature`**:
 
-- `specs/plans/YYYY-MM-DD-{name}/plan.md` — TDD task list, slice by slice
-- `specs/plans/YYYY-MM-DD-{name}/requirements.md` — scope, decisions, out-of-scope
-- `specs/plans/YYYY-MM-DD-{name}/validation.md` — acceptance criteria, definition of done
+- `sdd-specs/plans/YYYY-MM-DD-{name}/plan.md` — TDD task list, slice by slice
+- `sdd-specs/plans/YYYY-MM-DD-{name}/requirements.md` — scope, decisions, out-of-scope
+- `sdd-specs/plans/YYYY-MM-DD-{name}/validation.md` — acceptance criteria, definition of done
 - `docs/decisions/ADR-{NNN}.md` — written automatically when a significant architectural choice surfaces
 
 **`/sdd-implement-plan`**:

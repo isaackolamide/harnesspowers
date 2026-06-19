@@ -22,9 +22,9 @@ Task arrives
     ├── Need a spec?
     │   ├── No constitution yet                  → harnesspowers:sdd-write-spec (constitution mode)
     │   │                                           (wraps superpowers:brainstorming + agent-skills:interview-me + codebase analysis)
-    │   │                                           outputs: specs/mission.md, specs/tech-stack.md, specs/roadmap.md
+    │   │                                           outputs: sdd-specs/mission.md, sdd-specs/tech-stack.md, sdd-specs/roadmap.md
     │   ├── Constitution exists + feature reqs   → harnesspowers:sdd-write-spec (feature spec mode)
-    │   │                                           updates specs/roadmap.md, creates specs/features/YYYY-MM-DD-<name>-spec.md
+    │   │                                           updates sdd-specs/roadmap.md, creates sdd-specs/features/YYYY-MM-DD-<name>-spec.md
     │   └── Have a feature spec, want a plan     → harnesspowers:sdd-plan-feature
     │
     ├── Planning a feature?                      → harnesspowers:sdd-plan-feature

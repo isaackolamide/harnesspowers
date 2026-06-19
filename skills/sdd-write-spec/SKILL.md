@@ -1,6 +1,6 @@
 ---
 name: sdd-write-spec
-description: Create SDD specification documents (mission, tech-stack, roadmap) in specs/ directory — works for new and existing projects. Accepts optional seed context.
+description: Create SDD specification documents (mission, tech-stack, roadmap) in sdd-specs/ directory — works for new and existing projects. Accepts optional seed context.
 metadata:
   type: implementation
   composesWith: [superpowers:brainstorming, agent-skills:interview-me]
@@ -8,7 +8,7 @@ metadata:
 
 # Software Design Document (SDD) Generator
 
-Create a structured specification "constitution" with three core files in your project's `specs/` directory. Works for new projects and new initiatives inside an existing codebase. When a constitution already exists and you have product requirements for a specific feature, switches to **Feature Spec Mode** — updates the roadmap and creates a scoped feature spec ready for `sdd-plan-feature`.
+Create a structured specification "constitution" with three core files in your project's `sdd-specs/` directory. Works for new projects and new initiatives inside an existing codebase. When a constitution already exists and you have product requirements for a specific feature, switches to **Feature Spec Mode** — updates the roadmap and creates a scoped feature spec ready for `sdd-plan-feature`.
 
 ## Workflow
 
@@ -17,9 +17,9 @@ Create a structured specification "constitution" with three core files in your p
 **Before anything else**, check whether all three constitution files exist:
 
 ```
-specs/mission.md
-specs/tech-stack.md
-specs/roadmap.md
+sdd-specs/mission.md
+sdd-specs/tech-stack.md
+sdd-specs/roadmap.md
 ```
 
 - **All three exist** → **Feature Spec Mode** (jump to that section below). Do not run Constitution Mode.
@@ -36,7 +36,7 @@ Entered only when all three constitution files exist.
 
 ### FS-1: Read Constitution + Parse Requirements
 
-1. Read `specs/mission.md`, `specs/tech-stack.md`, `specs/roadmap.md`
+1. Read `sdd-specs/mission.md`, `sdd-specs/tech-stack.md`, `sdd-specs/roadmap.md`
 2. If seed requirements were provided, parse them through the feature lens:
    - **Objective** — what does this feature do?
    - **Who** — who benefits?
@@ -51,7 +51,7 @@ Entered only when all three constitution files exist.
 
 Map the requirements against the existing constitution. **This is a STOP step** — resolve "Never Do" conflicts before proceeding.
 
-Check against `specs/mission.md`:
+Check against `sdd-specs/mission.md`:
 - **"Never Do" violations** — hard blockers. Name them explicitly and wait for user resolution before continuing.
 - **"Ask First" items** — flag items needing stakeholder approval. Do not block, but surface them as explicit flags in the output.
 - **Roadmap fit** — identify which existing phase this feature belongs to, or whether it opens a new one.
@@ -80,22 +80,22 @@ Wait for explicit "yes" before writing. "Sounds good" or "whatever you think" is
 
 ### FS-4: Update Project Roadmap
 
-Edit `specs/roadmap.md` — add the feature as a new milestone, sub-item, or phase entry under the appropriate existing phase.
+Edit `sdd-specs/roadmap.md` — add the feature as a new milestone, sub-item, or phase entry under the appropriate existing phase.
 
 Do **not** create a feature-level `roadmap.md`. The project roadmap is the single source of truth for all phases.
 
 ### FS-5: Create Feature Spec
 
-Create `specs/features/YYYY-MM-DD-<feature-name>-spec.md`.
+Create `sdd-specs/features/YYYY-MM-DD-<feature-name>-spec.md`.
 
 This file is the direct input to `sdd-plan-feature`. Hand off with:
 ```
-/sdd-plan-feature specs/features/YYYY-MM-DD-<feature-name>-spec.md
+/sdd-plan-feature sdd-specs/features/YYYY-MM-DD-<feature-name>-spec.md
 ```
 
 **Output:**
 ```
-specs/
+sdd-specs/
 ├── roadmap.md                                      ← updated
 └── features/
     └── YYYY-MM-DD-<feature-name>-spec.md           ← created
@@ -118,7 +118,7 @@ Who benefits; who requested it.
 - [ ] Given [context], When [action], Then [outcome]
 
 ## Technical Constraints
-(derived from specs/mission.md boundaries and specs/tech-stack.md)
+(derived from sdd-specs/mission.md boundaries and sdd-specs/tech-stack.md)
 - [Boundary or constraint]
 
 ## In Scope
@@ -236,10 +236,10 @@ Assess whether the intent has the four minimum viable fields — skipping any al
 
 ### Step 3: Choose Specs Location
 
-Ask where the `specs/` folder should live:
-- `project-root/specs/` — Default
-- `docs/specs/` — Nested under existing documentation
-- `packages/specs/` — In a monorepo package
+Ask where the `sdd-specs/` folder should live:
+- `project-root/sdd-specs/` — Default
+- `docs/sdd-specs/` — Nested under existing documentation
+- `packages/sdd-specs/` — In a monorepo package
 - Custom path the user specifies
 
 ---
@@ -265,7 +265,7 @@ Wait for explicit confirmation before writing. "Sounds good" or "whatever you th
 
 ### Step 5: Generate Constitution
 
-Create three files in the chosen `specs/` location:
+Create three files in the chosen `sdd-specs/` location:
 
 1. **mission.md** — Objective, Boundaries, Commands
 2. **tech-stack.md** — Project Structure, Code Style, Testing Strategy
@@ -282,7 +282,7 @@ For existing projects:
 
 ```
 {chosen-path}/
-└── specs/
+└── sdd-specs/
     ├── mission.md
     ├── tech-stack.md
     └── roadmap.md
@@ -349,7 +349,7 @@ src/lib           → Shared utilities and helpers
 tests/            → Unit and integration tests
 e2e/              → End-to-end tests
 docs/             → Documentation
-specs/            → Specification documents
+sdd-specs/            → Specification documents
 \`\`\`
 
 ## Code Style
@@ -444,5 +444,5 @@ How/when to deploy:
 - Analysis (A1–A3) runs before any user questions — come to brainstorming with evidence, not a blank form
 - Both paths (new and existing) produce the same three-file output
 - Code Style section must include a real code snippet — extracted from existing code when available, user-provided for new projects
-- Ask user where `specs/` should live — no default assumption
-- All three files go in the chosen `specs/` directory
+- Ask user where `sdd-specs/` should live — no default assumption
+- All three files go in the chosen `sdd-specs/` directory

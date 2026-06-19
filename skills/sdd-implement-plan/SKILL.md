@@ -13,8 +13,8 @@ Execute a feature plan produced by `/sdd-plan-feature`. This skill wraps `superp
 ## Position in the SDD Trilogy
 
 ```
-/sdd-write-spec      → specs/mission.md, tech-stack.md, roadmap.md
-/sdd-plan-feature    → specs/YYYY-MM-DD-{feature}/plan.md, requirements.md, validation.md
+/sdd-write-spec      → sdd-specs/mission.md, tech-stack.md, roadmap.md
+/sdd-plan-feature    → sdd-specs/YYYY-MM-DD-{feature}/plan.md, requirements.md, validation.md
 /sdd-implement-plan  → commits per slice; plan.md checkboxes ticked per-slice (inline) or batched at end (subagent); validation.md ticked at completion → agent-skills:code-review-and-quality
 ```
 
@@ -22,7 +22,7 @@ Execute a feature plan produced by `/sdd-plan-feature`. This skill wraps `superp
 
 ### Step 1: Locate Spec Directory
 
-If the feature path or name is inferable from conversation context, confirm it with the user before proceeding. If not, list available `specs/` directories and ask the user to pick.
+If the feature path or name is inferable from conversation context, confirm it with the user before proceeding. If not, list available `sdd-specs/` directories and ask the user to pick.
 
 ### Step 2: Read Input Files
 
@@ -136,7 +136,7 @@ For framework-specific test patterns, structure conventions, and anti-patterns r
 
 **5. VERIFY**
 
-Using commands from `specs/mission.md` Quick Commands (if available), run in sequence:
+Using commands from `sdd-specs/mission.md` Quick Commands (if available), run in sequence:
 - Test suite passes
 - Build clean
 - Type check passes
@@ -149,7 +149,7 @@ Update `plan.md`: mark the completed task `[ ]` → `[x]`
 Commit slice code and updated `plan.md` together:
 
 ```bash
-git add [changed files] specs/[feature-dir]/plan.md
+git add [changed files] sdd-specs/[feature-dir]/plan.md
 git commit -m "[task name from plan.md]"
 ```
 
@@ -170,7 +170,7 @@ Autonomous mode: proceed immediately to the next slice.
 Tick all checkboxes in `plan.md` and commit. If any task has no checkbox, insert `- [ ]` before ticking:
 
 ```bash
-git add specs/[feature-dir]/plan.md
+git add sdd-specs/[feature-dir]/plan.md
 git commit -m "✓ all slices complete"
 ```
 
@@ -186,7 +186,7 @@ If any criterion is unmet: surface it and stop. Do not proceed until resolved.
 Once all criteria are ticked:
 
 ```bash
-git add specs/[feature-dir]/validation.md
+git add sdd-specs/[feature-dir]/validation.md
 git commit -m "✓ validation complete"
 ```
 
