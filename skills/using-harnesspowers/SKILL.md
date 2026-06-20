@@ -28,7 +28,8 @@ Task arrives
     │   └── Have a feature spec, want a plan     → harnesspowers:sdd-plan-feature
     │
     ├── Planning a feature?                      → harnesspowers:sdd-plan-feature
-    │                                               (wraps agent-skills:planning-and-task-breakdown + superpowers:writing-plans)
+    │                                               (wraps agent-skills:planning-and-task-breakdown;
+    │                                                outputs phase-structured plan.md with interface contracts + checkpoint blocks per phase)
     │
     ├── Executing a feature plan?                → harnesspowers:sdd-implement-plan
     │                                               (wraps TDD + subagent-driven-development;

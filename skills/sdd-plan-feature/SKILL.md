@@ -1,14 +1,14 @@
 ---
 name: sdd-plan-feature
-description: Plan a feature within an SDD project — wraps superpowers:writing-plans and outputs plan.md/requirements.md/validation.md in a dated sdd-specs/ subdirectory
+description: Plan a feature within an SDD project — wraps agent-skills:planning-and-task-breakdown and outputs plan.md/requirements.md/validation.md in a dated sdd-specs/ subdirectory
 metadata:
   type: implementation
-  composesWith: [agent-skills:planning-and-task-breakdown, superpowers:writing-plans]
+  composesWith: [agent-skills:planning-and-task-breakdown, agent-skills:interview-me]
 ---
 
 # SDD Feature Planner
 
-Plan a feature within your SDD project. This skill wraps `superpowers:writing-plans` to produce structured planning output in your project's `sdd-specs/` directory — the same way `sdd-write-spec` wraps brainstorming to produce the constitution.
+Plan a feature within your SDD project. This skill wraps `agent-skills:planning-and-task-breakdown` to produce structured planning output in your project's `sdd-specs/` directory — the same way `sdd-write-spec` wraps brainstorming to produce the constitution.
 
 ## Workflow
 
@@ -104,9 +104,9 @@ Establish the feature name for the output directory.
 
 This is a single question — not an interview. Branch strategy is **not** asked here; it belongs to implementation time and is handled by `sdd-implement-plan` or `agent-skills:git-workflow-and-versioning`.
 
-Create the feature directory `sdd-specs/plans/YYYY-MM-DD-{feature-name}/` immediately after the name is confirmed. This ensures a landing spot for the breakdown written in Step 4a.
+Create the feature directory `sdd-specs/plans/YYYY-MM-DD-{feature-name}/` immediately after the name is confirmed.
 
-### Step 4a: Run Planning-and-Task-Breakdown
+### Step 4: Run Planning-and-Task-Breakdown, Then Format plan.md
 
 Trigger `agent-skills:planning-and-task-breakdown` with:
 - Confirmed feature description (from intent restatement or seed input)
@@ -114,11 +114,14 @@ Trigger `agent-skills:planning-and-task-breakdown` with:
 - Constraints and out-of-scope from Steps 2/2b
 - Any referenced files read during Pre-Step 0
 
-**User confirmation gate:** Do not proceed to Step 4b until the task order, sizing, and checkpoints are confirmed.
+**User confirmation gate:** Do not proceed until the task order, sizing, and checkpoints are confirmed by the user.
 
-**CRITICAL:** The breakdown produced here is a confirmation artifact only — it is NOT plan.md and must NOT be written to disk as plan.md. Step 4b transforms it into the final format.
+After user confirms the breakdown, format the output directly into `plan.md` using the template in the **File Templates** section below. Do not write a separate `breakdown.md` first — format inline and write to `sdd-specs/plans/YYYY-MM-DD-{feature-name}/plan.md` directly.
 
-After user confirms, write the breakdown to `sdd-specs/plans/YYYY-MM-DD-{feature-name}/breakdown.md`. This persists the task list against context compaction or session interruption — Step 4b reads from this file.
+**Key formatting rules:**
+- Each task gets a lightweight `Interfaces` line — declare what the task produces (function name + type) and what it consumes from prior tasks. This is NOT pre-written code; it is a contract declaration so subagent implementers know what signatures to implement and what is available from earlier slices.
+- Each phase ends with a `### Checkpoint — Phase N` block with a checkbox. `sdd-implement-plan` runs this verification before advancing to the next phase.
+- No code blocks, no TDD steps, no bash commands — those are `sdd-implement-plan`'s responsibility at execution time.
 
 **ADR trigger:** When decomposition surfaces a significant architectural or technology choice (framework selection, data model, auth strategy, API architecture, or any decision expensive to reverse):
 - Invoke `agent-skills:documentation-and-adrs`
@@ -126,12 +129,6 @@ After user confirms, write the breakdown to `sdd-specs/plans/YYYY-MM-DD-{feature
 - **Cross-reference:** Add the ADR path to `requirements.md` under the Decisions section
 
 Apply the ADR trigger only to choices where the rationale and rejected alternatives have future value — not to every decision.
-
-### Step 4b: Run Writing-Plans
-
-Trigger `superpowers:writing-plans` using `sdd-specs/plans/YYYY-MM-DD-{feature-name}/breakdown.md` as the task source. If Step 4a's output is not in context (e.g., after compaction or session restart), read that file before triggering. Use project context from Step 1 as background. Its output becomes plan.md. Before writing, strip the `**For agentic workers:**` routing line from the top if present — execution routing is handled by `sdd-implement-plan`.
-
-Output location: `sdd-specs/plans/YYYY-MM-DD-{feature-name}/plan.md` (not writing-plans' default `docs/superpowers/plans/`).
 
 ### Step 5: Pre-Write Review
 
@@ -142,8 +139,9 @@ Before writing any file to disk, present a structured summary of what will be wr
 I'm about to write three files to sdd-specs/plans/YYYY-MM-DD-{feature-name}/:
 
 plan.md:
-  - {N} task groups, {M} total tasks
-  - Key phases: [list group names]
+  - {N} phases, {M} total tasks
+  - Phase names: [list]
+  - {K} checkpoint blocks
 
 requirements.md:
   - In scope: [2-3 bullet summary]
@@ -151,7 +149,7 @@ requirements.md:
   - Key decisions: [list any ADRs written, or "none"]
 
 validation.md:
-  - {K} acceptance criteria
+  - {J} acceptance criteria
   - Definition of done: [one-line summary]
 ```
 
@@ -167,23 +165,70 @@ validation.md:
 
 ### Step 6: Output
 
-Create the feature directory and generate the three files:
+Generate the three files:
 
 ```
 sdd-specs/plans/
 └── YYYY-MM-DD-{feature-name}/
-    ├── plan.md          → TDD implementation plan from writing-plans
+    ├── plan.md          → Phase-structured task list with interface contracts and checkpoint blocks
     ├── requirements.md  → Scope, decisions, context, out-of-scope
     └── validation.md    → How to know implementation succeeded and can be merged
 ```
-
-`breakdown.md` is written during Step 4a as a context-safety handoff. Delete it after `plan.md` is confirmed written in Step 6.
 
 ## File Templates
 
 ### plan.md
 
-Executable implementation plan produced by `superpowers:writing-plans`. Format is owned by that skill — do not reformat or simplify the output. Exception: strip the `**For agentic workers:**` routing line from the top if present.
+Phase-structured implementation plan. No code blocks — interface contracts only. Checkboxes on acceptance criteria (ticked by `sdd-implement-plan` at execution time) and checkpoint blocks (run at phase boundaries).
+
+```markdown
+# [Feature Name] Implementation Plan
+
+**Goal:** [one sentence describing what this builds]
+**Architecture:** [2-3 sentences about approach]
+**Tech Stack:** [key technologies]
+
+---
+
+## Phase 1: [Phase Name]
+
+### Task 1.1: [Task Name]
+- Scope: S/M/L
+- Files: `exact/path/to/file.ts` (create), `exact/path/to/existing.ts` (modify)
+- Interfaces: produces `functionName(param: Type): ReturnType`; consumes `otherFn` from Task 1.X
+- Acceptance criteria:
+  - [ ] Given [context], When [action], Then [outcome]
+  - [ ] [Additional criterion]
+- Verification: `npm test path/to/test.ts`
+- Dependencies: none
+
+### Task 1.2: [Task Name]
+- Scope: S/M/L
+- Files: ...
+- Interfaces: produces ...; consumes ... from Task 1.1
+- Acceptance criteria:
+  - [ ] ...
+- Verification: ...
+- Dependencies: Task 1.1
+
+### Checkpoint — Phase 1
+- [ ] [Integration condition that must be true before Phase 2 starts — e.g., "all Phase 1 tests pass end-to-end", "API contract validated against consumer"]
+
+---
+
+## Phase 2: [Phase Name]
+
+### Task 2.1: [Task Name]
+...
+
+### Checkpoint — Phase 2
+- [ ] [Integration condition before Phase 3, or "all tests pass and build is clean" for final phase]
+```
+
+**Scope sizing reference:**
+- S = 1 file, 1-2 hours
+- M = 2-3 files, half day
+- L = 4-5 files, full day (consider breaking down further)
 
 ### requirements.md
 
@@ -256,22 +301,22 @@ When you invoke `/sdd-plan-feature`:
 1. Check for seed input (prompt text, file reference, conversation context, roadmap phase reference) — parse through Who/Why/Success/Constraint lens and mark what is already answered
 2. If no seed: check for `sdd-specs/roadmap.md` → present next incomplete phase; if no roadmap: ask "what feature?"
 3. Read `sdd-specs/mission.md`, `sdd-specs/tech-stack.md`, `sdd-specs/roadmap.md` for project context (missing files don't block)
-4. Assess minimum viable fields (Who/Why/Success/Constraint) — if all present, skip to Step 6 (feature naming)
+4. Assess minimum viable fields (Who/Why/Success/Constraint) — if all present, skip to Step 3 (feature naming)
 5. If any core field is missing: invoke `agent-skills:interview-me` — one question at a time, informed by project context; require explicit "yes" before continuing
 6. Probe Dependencies if not already clear from context
 7. Confirm feature name (propose if inferrable; otherwise ask a single question) — create `sdd-specs/plans/YYYY-MM-DD-{feature-name}/` directory immediately after confirmation
 8. Trigger `agent-skills:planning-and-task-breakdown` — dependency graph, vertical slices, task sizing, checkpoints
 9. If a significant architectural decision surfaces: invoke `agent-skills:documentation-and-adrs` → save to `docs/decisions/ADR-{NNN}-{title}.md`; cross-reference in requirements.md
-10. Confirm task order and sizing with user before continuing — then write the confirmed breakdown to `sdd-specs/plans/YYYY-MM-DD-{feature-name}/breakdown.md`
-11. Trigger `superpowers:writing-plans` using `breakdown.md` as the source — its output becomes plan.md; save to `sdd-specs/plans/YYYY-MM-DD-{feature-name}/plan.md`
-12. Present pre-write summary of all three files — ask focused probe; resolve concerns before writing
-13. Write plan.md, requirements.md, and validation.md to `sdd-specs/plans/YYYY-MM-DD-{feature-name}/` — then delete `breakdown.md`
+10. Confirm task order and sizing with user before continuing — then format output directly into `plan.md` using the template above (no breakdown.md intermediate file)
+11. Present pre-write summary of all three files — ask focused probe; resolve concerns before writing
+12. Write plan.md, requirements.md, and validation.md to `sdd-specs/plans/YYYY-MM-DD-{feature-name}/`
 
 ## Key Points
 
 - Minimum viable fields check (Who/Why/Success/Constraint + Dependencies) gates interview-me — only invoke the deep interview when fields are genuinely missing
-- Two-pass planning: breakdown first (order + sizing), writing-plans second (executable detail) — never skip the breakdown pass
-- breakdown.md is a temporary handoff file — written after Step 4a confirmation, read by Step 4b if context is lost, deleted after plan.md is written
+- Single-pass planning: planning-and-task-breakdown output is formatted directly into plan.md — no intermediate breakdown.md, no writing-plans pass
+- Plans contain interface contracts (function name + type per task), not code — TDD execution is sdd-implement-plan's job at implementation time
+- Phase sections with checkpoint blocks enable phase-level verification gates during implementation
 - ADRs are project-level artifacts saved to `docs/decisions/` with sequential numbering — not in the feature directory
 - Pre-write review probes for gaps with a structured summary and a focused probe question before committing files to disk
 - requirements.md makes out-of-scope explicit, not just in-scope

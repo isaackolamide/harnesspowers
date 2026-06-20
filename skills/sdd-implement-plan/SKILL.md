@@ -83,6 +83,7 @@ Follow `superpowers:subagent-driven-development` for this slice. The steps below
 
 When the primitive builds the implementer brief, also include:
 - CLASSIFY result: "This is a [frontend/API/general] slice. Invoke [domain skill names] before coding."
+- Task's `Interfaces` line from `plan.md` — what this slice must produce (function name + type) and what it may consume from prior tasks. This is the contract to honour; do not invent different names or signatures.
 - Relevant constraints from `requirements.md` (only what binds this slice)
 - If ADR written: ADR path as implementation context
 - Instruction: commit code changes only — do not touch `plan.md`
@@ -97,9 +98,17 @@ When the primitive dispatches the task reviewer, also include:
 
 After the task review passes, update the progress ledger per the primitive's tracking protocol.
 
-**5. NEXT SLICE**
+**5. PHASE CHECKPOINT (controller — before advancing to a new phase)**
 
-Proceed immediately to the next unchecked/pending task. No checkpoint in subagent-driven mode.
+After the last reviewed task in a `## Phase N` section completes, before dispatching the first task of Phase N+1:
+
+1. Run the `### Checkpoint — Phase N` verification from `plan.md` (the condition listed after that section's tasks)
+2. If the checkpoint passes: tick its checkbox `[ ]` → `[x]` in `plan.md`, commit, then proceed to Phase N+1
+3. If the checkpoint fails: surface the failure to the user and stop — do not advance until resolved
+
+**6. NEXT SLICE**
+
+Proceed to the next unchecked/pending task.
 
 **When all slices are complete:** proceed directly to Step 5 below. Do not follow the primitive's own "finishing" sequence — this skill owns the post-execution sequence from here.
 
@@ -143,7 +152,7 @@ Using commands from `sdd-specs/mission.md` Quick Commands (if available), run in
 
 **6. TICK + COMMIT**
 
-Mark the completed task `[ ]` → `[x]` in `plan.md`.
+Tick all acceptance criteria checkboxes for this task `[ ]` → `[x]` in `plan.md`. The task is complete when every criterion for it is checked.
 
 Commit slice code and updated `plan.md` together:
 
@@ -154,7 +163,15 @@ git commit -m "[task name from plan.md]"
 
 Never tick and commit separately — they must be atomic.
 
-**7. CHECKPOINT (checkpoint mode only)**
+**7. PHASE CHECKPOINT (inline — before advancing to a new phase)**
+
+If the completed task is the last in a `## Phase N` section and Phase N+1 exists:
+
+1. Run the `### Checkpoint — Phase N` verification from `plan.md`
+2. If it passes: tick its checkbox `[ ]` → `[x]`, commit, advance to Phase N+1
+3. If it fails: surface the failure to the user and stop
+
+**8. NEXT SLICE (inline — checkpoint mode only)**
 
 > "Slice N complete. Continue to slice N+1: [next task name]?"
 
@@ -206,7 +223,7 @@ Fix any Critical or Important findings before proceeding.
 
 #### 5e: Tick plan.md (subagent-driven mode only)
 
-Tick all checkboxes in `plan.md` and commit. This step is the completion signal: plan.md checked off means all slices are done and all reviews are clean.
+Tick all remaining checkboxes in `plan.md` (acceptance criteria and phase checkpoint boxes) and commit. This step is the completion signal: plan.md fully checked means all slices are done, all phase checkpoints passed, and all reviews are clean.
 
 ```bash
 git add sdd-specs/[feature-dir]/plan.md
@@ -226,7 +243,7 @@ Invoke `superpowers:finishing-a-development-branch` to handle merge, PR creation
 - Never skip a failing test regardless of mode
 - Never proceed past the validation gate (5b) if any criterion is unmet
 - Never advance past 5a or 5d with open Critical or Important review findings
-- `plan.md` checkboxes track implementation progress — ticked per-slice atomic with code (inline) or at Step 5e after all reviews pass (subagent-driven)
+- `plan.md` checkboxes track implementation progress — acceptance criteria ticked per-task atomic with code (inline) or at Step 5e after all reviews pass (subagent-driven); phase checkpoint boxes ticked at phase boundaries in both modes
 - `validation.md` checkboxes track spec compliance — ticked during the validation gate (5b), never before
 - **Subagent-driven mode**: `superpowers:subagent-driven-development` owns per-slice dispatch and progress ledger; this skill owns the post-execution sequence (Step 5 onward)
 - **Subagent-driven mode**: when all slices are done, proceed directly to Step 5 — do not follow the primitive's own finishing sequence

@@ -19,8 +19,8 @@ harnesspowers delegates to the other four. It owns no copies of their skills.
 |-------|---------|
 | `using-harnesspowers` | Authoritative routing tree across all three plugins |
 | `sdd-write-spec` | Constitution: mission.md, tech-stack.md, roadmap.md — new and existing projects |
-| `sdd-plan-feature` | Feature plan: plan.md, requirements.md, validation.md — triggers ADR for significant arch decisions |
-| `sdd-implement-plan` | Slice-by-slice execution — 3-way mode (subagent-driven / autonomous / checkpoint), domain-aware dispatch, TDD enforced, validation gate, hands off to agent-skills:code-review-and-quality |
+| `sdd-plan-feature` | Feature plan: phase-structured plan.md (interface contracts + checkpoint blocks per phase), requirements.md, validation.md — triggers ADR for significant arch decisions |
+| `sdd-implement-plan` | Slice-by-slice execution — 3-way mode (subagent-driven / autonomous / checkpoint), domain-aware dispatch, TDD enforced, phase checkpoint gates, validation gate, hands off to agent-skills:code-review-and-quality |
 | `optimise-claude-md` | CLAUDE.md audit with discoverability lens |
 | `suggest-skills` | Cross-plugin skill discovery |
 
