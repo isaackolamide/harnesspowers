@@ -25,6 +25,8 @@ harnesspowers delegates to the other four. It owns no copies of their skills.
 ## References
 
 - `references/clean-architecture-ddd-reference.md` — Clean Architecture & DDD patterns
+- `references/sdd-testing-guide.md` — How to test and fix SDD skills when failures are found
+- `sdd-tests/` — 23 test scenarios for sdd-write-spec, sdd-plan-feature, sdd-implement-plan
 
 ## Behaviour
 
