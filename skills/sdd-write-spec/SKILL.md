@@ -184,7 +184,7 @@ This populates the **Project Structure** and **Testing Strategy** sections of te
 
 Look for and read:
 - `README.md`
-- Any `docs/`, `documentation/`, or `wiki/` folders
+- Any `sdd-docs/`, `documentation/`, or `wiki/` folders
 - Inline architecture comments in entry-point files
 - `CHANGELOG.md` or tagged releases for project history
 
@@ -348,7 +348,7 @@ src/components    → [Component description]
 src/lib           → Shared utilities and helpers
 tests/            → Unit and integration tests
 e2e/              → End-to-end tests
-docs/             → Documentation
+sdd-docs/             → Documentation
 sdd-specs/            → Specification documents
 \`\`\`
 

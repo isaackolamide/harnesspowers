@@ -116,16 +116,16 @@ Trigger `agent-skills:planning-and-task-breakdown` with:
 
 **User confirmation gate:** Do not proceed until the task order, sizing, and checkpoints are confirmed by the user.
 
-After user confirms the breakdown, format the output directly into `plan.md` using the template in the **File Templates** section below. Do not write a separate `breakdown.md` first — format inline and write to `sdd-specs/plans/YYYY-MM-DD-{feature-name}/plan.md` directly.
+After user confirms the breakdown, format the output directly into `plan.md` using the template in the **File Templates** section below. Format output directly into plan.md with no intermediate files of any kind — write to `sdd-specs/plans/YYYY-MM-DD-{feature-name}/plan.md` directly.
 
 **Key formatting rules:**
-- Each task gets a lightweight `Interfaces` line — declare what the task produces (function name + type) and what it consumes from prior tasks. This is NOT pre-written code; it is a contract declaration so subagent implementers know what signatures to implement and what is available from earlier slices.
+- Each task gets a lightweight `Interfaces` line — declare what the task produces (function name + type) and what it consumes from prior tasks. This is NOT pre-written code; it is a contract declaration so subagent implementers know what signatures to implement and what is available from earlier slices. Full signatures are required for both produced and consumed functions — prose descriptions ("produces email sending functionality") are not acceptable; if you cannot name a function signature, the task decomposition is not done yet.
 - Each phase ends with a `### Checkpoint — Phase N` block with a checkbox. `sdd-implement-plan` runs this verification before advancing to the next phase.
 - No code blocks, no TDD steps, no bash commands — those are `sdd-implement-plan`'s responsibility at execution time.
 
 **ADR trigger:** When decomposition surfaces a significant architectural or technology choice (framework selection, data model, auth strategy, API architecture, or any decision expensive to reverse):
 - Invoke `agent-skills:documentation-and-adrs`
-- **Save location:** `docs/decisions/ADR-{NNN}-{title}.md` — sequential numbering; check existing files to determine next number. ADRs are project-level artifacts and are **not** saved inside the feature directory.
+- **Save location:** `sdd-docs/decisions/ADR-{NNN}-{title}.md` — sequential numbering; check existing files to determine next number. ADRs are project-level artifacts and are **not** saved inside the feature directory.
 - **Cross-reference:** Add the ADR path to `requirements.md` under the Decisions section
 
 Apply the ADR trigger only to choices where the rationale and rejected alternatives have future value — not to every decision.
@@ -161,7 +161,7 @@ validation.md:
 - Adjust plan content and restate the adjustment
 - Confirm the adjustment before continuing
 
-**If confirmed (explicit "yes", "looks good", or "write it"):** proceed to Step 6.
+**To proceed to Step 6:** present the summary, ask the focused probe question, then wait for explicit confirmation ("yes", "looks good", or "write it") — do not skip the probe question even if the user has expressed urgency.
 
 ### Step 6: Output
 
@@ -195,7 +195,7 @@ Phase-structured implementation plan. No code blocks — interface contracts onl
 ### Task 1.1: [Task Name]
 - Scope: S/M/L
 - Files: `exact/path/to/file.ts` (create), `exact/path/to/existing.ts` (modify)
-- Interfaces: produces `functionName(param: Type): ReturnType`; consumes `otherFn` from Task 1.X
+- Interfaces: produces `functionName(param: Type): ReturnType`; consumes `otherFn(param: Type): ReturnType` from Task 1.X
 - Acceptance criteria:
   - [ ] Given [context], When [action], Then [outcome]
   - [ ] [Additional criterion]
@@ -212,7 +212,8 @@ Phase-structured implementation plan. No code blocks — interface contracts onl
 - Dependencies: Task 1.1
 
 ### Checkpoint — Phase 1
-- [ ] [Integration condition that must be true before Phase 2 starts — e.g., "all Phase 1 tests pass end-to-end", "API contract validated against consumer"]
+- [ ] [Integration condition — be specific, not "all tasks complete"; e.g., "all Phase 1 tests pass end-to-end", "API contract validated against consumer"]
+- Verification: `[command that proves the condition — e.g., "npm test src/phase1/" or "npm run build"]`
 
 ---
 
@@ -222,7 +223,8 @@ Phase-structured implementation plan. No code blocks — interface contracts onl
 ...
 
 ### Checkpoint — Phase 2
-- [ ] [Integration condition before Phase 3, or "all tests pass and build is clean" for final phase]
+- [ ] [Integration condition for final phase — e.g., "all tests pass and build is clean, no TypeScript errors"]
+- Verification: `[command]`
 ```
 
 **Scope sizing reference:**
@@ -259,7 +261,7 @@ Why this feature is being built:
 - sdd-specs/mission.md — Project objective and boundaries
 - sdd-specs/tech-stack.md — Technical constraints and code style
 - sdd-specs/roadmap.md — Phase this feature belongs to
-- docs/decisions/ADR-{NNN}-{title}.md — [decision title] (include only if an ADR was written)
+- sdd-docs/decisions/ADR-{NNN}-{title}.md — [decision title] (include only if an ADR was written)
 ```
 
 ### validation.md
@@ -301,12 +303,12 @@ When you invoke `/sdd-plan-feature`:
 1. Check for seed input (prompt text, file reference, conversation context, roadmap phase reference) — parse through Who/Why/Success/Constraint lens and mark what is already answered
 2. If no seed: check for `sdd-specs/roadmap.md` → present next incomplete phase; if no roadmap: ask "what feature?"
 3. Read `sdd-specs/mission.md`, `sdd-specs/tech-stack.md`, `sdd-specs/roadmap.md` for project context (missing files don't block)
-4. Assess minimum viable fields (Who/Why/Success/Constraint) — if all present, skip to Step 3 (feature naming)
+4. Assess minimum viable fields (Who/Why/Success/Constraint) — if all present, skip to item 6 (probe Dependencies), then proceed to Step 3 (feature naming)
 5. If any core field is missing: invoke `agent-skills:interview-me` — one question at a time, informed by project context; require explicit "yes" before continuing
 6. Probe Dependencies if not already clear from context
 7. Confirm feature name (propose if inferrable; otherwise ask a single question) — create `sdd-specs/plans/YYYY-MM-DD-{feature-name}/` directory immediately after confirmation
 8. Trigger `agent-skills:planning-and-task-breakdown` — dependency graph, vertical slices, task sizing, checkpoints
-9. If a significant architectural decision surfaces: invoke `agent-skills:documentation-and-adrs` → save to `docs/decisions/ADR-{NNN}-{title}.md`; cross-reference in requirements.md
+9. If a significant architectural decision surfaces: invoke `agent-skills:documentation-and-adrs` → save to `sdd-docs/decisions/ADR-{NNN}-{title}.md`; cross-reference in requirements.md
 10. Confirm task order and sizing with user before continuing — then format output directly into `plan.md` using the template above (no breakdown.md intermediate file)
 11. Present pre-write summary of all three files — ask focused probe; resolve concerns before writing
 12. Write plan.md, requirements.md, and validation.md to `sdd-specs/plans/YYYY-MM-DD-{feature-name}/`
@@ -314,10 +316,10 @@ When you invoke `/sdd-plan-feature`:
 ## Key Points
 
 - Minimum viable fields check (Who/Why/Success/Constraint + Dependencies) gates interview-me — only invoke the deep interview when fields are genuinely missing
-- Single-pass planning: planning-and-task-breakdown output is formatted directly into plan.md — no intermediate breakdown.md, no writing-plans pass
+- Single-pass planning: planning-and-task-breakdown output is formatted directly into plan.md — no intermediate files of any kind, no writing-plans pass
 - Plans contain interface contracts (function name + type per task), not code — TDD execution is sdd-implement-plan's job at implementation time
 - Phase sections with checkpoint blocks enable phase-level verification gates during implementation
-- ADRs are project-level artifacts saved to `docs/decisions/` with sequential numbering — not in the feature directory
+- ADRs are project-level artifacts saved to `sdd-docs/decisions/` with sequential numbering — not in the feature directory
 - Pre-write review probes for gaps with a structured summary and a focused probe question before committing files to disk
 - requirements.md makes out-of-scope explicit, not just in-scope
 - validation.md defines "done" before implementation starts — not after

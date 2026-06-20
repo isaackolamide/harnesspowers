@@ -162,7 +162,7 @@ This keeps post-impl fixes inside the same spec/plan/implement discipline as new
 - `sdd-specs/plans/YYYY-MM-DD-{name}/plan.md` — phase-structured task list with interface contracts and checkpoint blocks
 - `sdd-specs/plans/YYYY-MM-DD-{name}/requirements.md` — scope, decisions, out-of-scope
 - `sdd-specs/plans/YYYY-MM-DD-{name}/validation.md` — acceptance criteria, definition of done
-- `docs/decisions/ADR-{NNN}.md` — written automatically when a significant architectural choice surfaces
+- `sdd-docs/decisions/ADR-{NNN}.md` — written automatically when a significant architectural choice surfaces
 
 **`/sdd-implement-plan`**:
 
@@ -170,7 +170,7 @@ This keeps post-impl fixes inside the same spec/plan/implement discipline as new
 
 ### Inside each command
 
-**`/sdd-plan-feature`** runs `agent-skills:planning-and-task-breakdown` and formats the output directly into a phase-structured `plan.md` — phases with tasks, lightweight interface contracts per task (what each slice produces and consumes), and a checkpoint block at the end of each phase. No code is pre-written in the plan; TDD execution happens at implementation time. A structured summary of all three output files is shown *before writing them*, with a focused probe question. When a significant architectural decision surfaces, it writes an ADR to `docs/decisions/ADR-{NNN}.md` — outside the feature directory so it outlives the feature.
+**`/sdd-plan-feature`** runs `agent-skills:planning-and-task-breakdown` and formats the output directly into a phase-structured `plan.md` — phases with tasks, lightweight interface contracts per task (what each slice produces and consumes), and a checkpoint block at the end of each phase. No code is pre-written in the plan; TDD execution happens at implementation time. A structured summary of all three output files is shown *before writing them*, with a focused probe question. When a significant architectural decision surfaces, it writes an ADR to `sdd-docs/decisions/ADR-{NNN}.md` — outside the feature directory so it outlives the feature.
 
 **`/sdd-implement-plan`** asks once how slices should run:
 
