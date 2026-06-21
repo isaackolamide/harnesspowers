@@ -32,7 +32,7 @@ claude-md-management (tooling)    — CLAUDE.md audit and improvement
 | `/using-harnesspowers` | Routing tree — which skill for which task, across all three plugins |
 | `/sdd-write-spec` | Create or extract SDD constitution — works for new and existing projects |
 | `/sdd-plan-feature` | Plan a feature from the roadmap — outputs plan.md/requirements.md/validation.md; triggers ADR for significant arch decisions |
-| `/sdd-implement-plan` | Execute a feature plan — 3-way mode (subagent-driven / autonomous / checkpoint), domain-aware dispatch, TDD enforced, validation gate, hands off to agent-skills:code-review-and-quality |
+| `/sdd-implement-plan` | Execute a feature plan — 3-way mode (subagent-driven / autonomous / checkpoint), domain-aware dispatch, TDD enforced, automated validation gate, review findings appended to plan.md |
 | `/optimise-claude-md` | Audit and improve any project's CLAUDE.md |
 | `/suggest-skills` | Discover the right skill across all installed plugins |
 
@@ -178,7 +178,7 @@ This keeps post-impl fixes inside the same spec/plan/implement discipline as new
 - **Autonomous** — single session, no pauses. Best for small plans or prototypes.
 - **Checkpoint** — single session, pauses after each slice for your confirmation.
 
-Inline modes enforce Red-Green-Refactor strictly: one failing test written before any code, minimal code to pass it, refactor only after green. At each phase boundary, the `### Checkpoint — Phase N` block from `plan.md` is verified before the next phase begins — a phase gate that catches integration issues early. After all slices, a **validation gate** walks through every criterion in `validation.md` before anything is declared done — no criterion unmet, no merge. The session closes with `agent-skills:code-review-and-quality` reviewing the full feature diff.
+Inline modes enforce Red-Green-Refactor strictly: one failing test written before any code, minimal code to pass it, refactor only after green. At each phase boundary, the `### Checkpoint — Phase N` block from `plan.md` is verified before the next phase begins — a phase gate that catches integration issues early. After all slices, an **automated validation gate** executes tests for every criterion in `validation.md` before anything is declared done — no criterion unmet, no merge. The session closes with `agent-skills:code-review-and-quality` reviewing the full feature diff, appending any findings as tasks to `plan.md` for the controller to resolve.
 
 ## What's NOT in This Plugin
 
