@@ -154,15 +154,16 @@ If there are any Critical or Important findings, you (the controller) must appen
 
 > Note: 4.4 findings are about code craft, not spec compliance — they do not invalidate 4.2. Fix and re-run 4.4 only; do not re-open the validation gate unless a finding reveals an unmet spec requirement.
 
-#### 4.5. Tick plan.md
+#### 4.5. Tick plan.md and roadmap.md
 
-The controller is responsible for ticking `plan.md`. Re-read `plan.md` to confirm current checkbox state. Tick all acceptance criteria checkboxes — phase checkpoint boxes were already ticked at phase boundaries (Step 3.6) and must not be re-ticked here. 
+The controller is responsible for ticking `plan.md` and updating the project roadmap.
 
-By this point, all criteria have been verified via automated tests in Step 4.2. This step is strictly an administrative completion signal: `plan.md` fully checked means all slices are done, all phase checkpoints passed, and all reviews are clean. If any acceptance criterion was already ticked by a subagent, they violated the no-touch instruction — investigate before committing.
+1. **Tick `plan.md`**: Re-read `plan.md` to confirm current checkbox state. Tick all acceptance criteria checkboxes — phase checkpoint boxes were already ticked at phase boundaries (Step 3.6) and must not be re-ticked here. By this point, all criteria have been verified via automated tests in Step 4.2. This is strictly an administrative completion signal. If any acceptance criterion was already ticked by a subagent, they violated the no-touch instruction — investigate before committing.
+2. **Tick `roadmap.md`**: Open `sdd-specs/roadmap.md` and locate the feature or phase you just completed. Change its checkbox from `[ ]` to `[x]`.
 
 ```bash
-git add sdd-specs/plans/[feature-dir]/plan.md
-git commit -m "✓ all slices complete"
+git add sdd-specs/plans/[feature-dir]/plan.md sdd-specs/roadmap.md
+git commit -m "✓ feature complete: plan and roadmap updated"
 ```
 
 #### 4.6. Branch Integration
