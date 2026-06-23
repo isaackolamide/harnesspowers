@@ -79,10 +79,8 @@ Task arrives
     ├── Git workflow (branching, commits, PRs)?  → agent-skills:git-workflow-and-versioning
     ├── Context engineering (system prompts)?    → agent-skills:context-engineering
     │
-    ├── Optimising a CLAUDE.md file?             → harnesspowers:optimise-claude-md
-    │   └── (also: claude-md-management:claude-md-improver for base audit)
-    │
-    └── Not sure which skill to use?             → harnesspowers:suggest-skills
+    └── Optimising a CLAUDE.md file?             → harnesspowers:optimise-claude-md
+        └── (also: claude-md-management:claude-md-improver for base audit)
 ```
 
 ## Core Operating Behaviors

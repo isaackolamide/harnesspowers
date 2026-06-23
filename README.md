@@ -17,7 +17,7 @@ It owns no primitive skills itself. It delegates to four companion plugins: `age
 ## Plugin Stack
 
 ```
-harnesspowers (orchestrator)      — 8 SDD workflow skills
+harnesspowers (orchestrator)      — 7 SDD workflow skills
      ↓ delegates to
 agent-skills (primitives)         — 24 engineering skills
 superpowers (discipline)          — TDD, subagent-driven execution, brainstorming
@@ -36,7 +36,6 @@ claude-md-management (tooling)    — CLAUDE.md audit and improvement
 | `/sdd-verify-feature` | Validate spec compliance (via test-engineer), docs audit, and quality review checklist; appends review fixes to plan.md if needed |
 | `/sdd-integrate-feature` | Programmatic verification gate (clean git working tree, all checkboxes ticked), merges changes, and cleans up the branch |
 | `/optimise-claude-md` | Audit and improve any project's CLAUDE.md |
-| `/suggest-skills` | Discover the right skill across all installed plugins |
 
 ## Installation
 

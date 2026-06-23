@@ -1,11 +1,11 @@
-# Harnesspowers v2
+# Harnesspowers
 
 SDD workflow orchestrator for Claude Code. Thin orchestration layer that composes `agent-skills`, `superpowers`, `frontend-design`, and `claude-md-management` into end-to-end development workflows.
 
 ## Architecture
 
 Four-plugin dependency stack:
-- **harnesspowers** — 8 SDD workflow skills + unified routing tree (this plugin)
+- **harnesspowers** — 7 SDD workflow skills + unified routing tree (this plugin)
 - **agent-skills** — 24 engineering primitive skills (from `addyosmani/agent-skills`)
 - **superpowers** — Core disciplines: TDD, debugging, brainstorming (from `claude-plugins-official`)
 - **frontend-design** — Design direction + frontend UI engineering (from `claude-plugins-official`)
@@ -24,13 +24,11 @@ harnesspowers delegates to the other four. It owns no copies of their skills.
 | `sdd-verify-feature` | Performs formal validation via test-engineer, docs audit, and quality review checklist; appends review fixes to plan.md if needed; ticks plan.md and roadmap.md when complete |
 | `sdd-integrate-feature` | Programmatic verification gate (clean git status, all checkboxes ticked), merges changes, and cleans up the branch |
 | `optimise-claude-md` | CLAUDE.md audit with discoverability lens |
-| `suggest-skills` | Cross-plugin skill discovery |
 
 ## References
 
 - `references/clean-architecture-ddd-reference.md` — TypeScript Clean Architecture & DDD patterns
-- `references/sdd-testing-guide.md` — How to test and fix SDD skills when failures are found
-- `sdd-tests/` — 24 test scenarios for sdd-write-spec, sdd-plan-feature, sdd-implement-plan, sdd-verify-feature, and sdd-integrate-feature
+
 
 ## Behaviour
 

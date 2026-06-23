@@ -7,7 +7,7 @@
   },
   "homepage": "https://github.com/isaackolamide/harnesspowers",
   "repository": "https://github.com/isaackolamide/harnesspowers",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "skills": "./skills",
   "dependencies": [
     "agent-skills@addy-agent-skills",
