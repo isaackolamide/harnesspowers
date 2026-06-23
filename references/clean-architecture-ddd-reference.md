@@ -6,28 +6,36 @@
 
 ## Folder Structure
 
-Code lives under `apps/src/` and is grouped by **Bounded Context** (e.g., `ordering`, `billing`). Each context follows a strict 4-layer Clean Architecture.
+Backend Code lives under `backend/src/` and follows a strict 4-layer Clean Architecture.
 
 ```
-/src/
-└── [context-name]/
-    ├── presenter/               # Layer 1 — Delivery (Input/Output)
-    │   ├── controllers/         # Handle requests, call use cases, format responses
-    │   ├── routes/              # Map URLs to controllers
-    │   ├── dtos/                # Define and validate incoming data shapes
-    │   └── middlewares/         # Pre-request checks (auth, logging)
-    │
-    ├── application/             # Layer 2 — Orchestration (The Brain)
-    │   ├── use-cases/           # Actions a user can perform (e.g., PayOrder)
-    │   └── interfaces/          # Contracts for outside tools (e.g., IOrderRepository)
-    │
-    ├── domain/                  # Layer 3 — Core Business Logic (The Truth)
-    │   ├── entities/            # Business objects with behaviour + validation
-    │   └── models/              # Pure types, schemas, and Value Objects
-    │
-    └── adapters/                # Layer 4 — Infrastructure (The Tools)
-        ├── repository/          # Real database implementations (Prisma, TypeORM)
-        └── external-service/    # External API clients (Stripe, SendGrid)
+/ (Root)
+├── backend/
+│   └── src/
+│       ├── api/                     # Layer 1 — Delivery (Input/Output)
+│       │   ├── controllers/         # Handle requests, call use cases, format responses
+│       │   ├── routes/              # Map URLs to controllers
+│       │   ├── dtos/                # Define and validate incoming data shapes
+│       │   └── middlewares/         # Pre-request checks (auth, logging)
+│       │
+│       ├── application/             # Layer 2 — Orchestration (The Brain)
+│       │   ├── use-cases/           # Actions a user can perform (e.g., PayOrder)
+│       │   └── interfaces/          # Contracts for outside tools (e.g., IOrderRepository)
+│       │
+│       ├── domain/                  # Layer 3 — Core Business Logic (The Truth)
+│       │   ├── entities/            # Business objects with behaviour + validation
+│       │   └── models/              # Pure types, schemas, and Value Objects
+│       │
+│       ├── adapters/                # Layer 4 — Secondary Adapters (Port Implementations)
+│       │   ├── repository/          # Real database implementations (Prisma, TypeORM)
+│       │   └── external-service/    # External API clients (Stripe, SendGrid)
+│       │
+│       └── infrastructure/          # Layer 4 — System Setup, Clients & Config
+│           ├── database/            # Client instances (Prisma client, MongoDB connection)
+│           ├── config/              # Environment config parsing and schema validation
+│           └── telemetry/           # Logger, metrics, and tracing setup
+│
+└── infra/                           # Infrastructure orchestration (e.g., docker-compose.yml)
 ```
 
 ---
@@ -38,12 +46,12 @@ Code lives under `apps/src/` and is grouped by **Bounded Context** (e.g., `order
 Dependencies must **only point inward**. Inner layers cannot know anything about outer layers.
 
 ```
-[Presenter / Adapters] ──> [Application] ──> [Domain]
+[API / Adapters / Infrastructure] ──> [Application] ──> [Domain]
 ```
 
 | Layer | Can import from |
 |---|---|
-| Presenter & Adapters | Application, Domain |
+| API, Adapters & Infrastructure | Application, Domain |
 | Application | Domain only |
 | Domain | **Nothing** — no external imports |
 
@@ -60,7 +68,7 @@ Dependencies must **only point inward**. Inner layers cannot know anything about
 Contains only data structures and business rules. Zero framework dependencies.
 
 ```typescript
-// domain/models/order.model.ts
+// backend/src/domain/models/order.model.ts
 export type OrderStatus = 'PENDING' | 'PAID';
 
 export interface OrderProps {
@@ -71,7 +79,7 @@ export interface OrderProps {
 ```
 
 ```typescript
-// domain/entities/order.entity.ts
+// backend/src/domain/entities/order.entity.ts
 import { OrderProps } from '../models/order.model';
 
 export class Order {
@@ -95,7 +103,7 @@ export class Order {
 **Value Objects** represent primitives that carry business rules. They are immutable and compared by value, not identity.
 
 ```typescript
-// domain/models/money.value-object.ts
+// backend/src/domain/models/money.value-object.ts
 export class Money {
   constructor(
     readonly amount: number,
@@ -117,7 +125,7 @@ Defines *what the system can do* and *the contracts needed to do it*.
 **Testing note:** Because Use Cases depend only on interfaces, you can test them by passing a simple in-memory implementation — no database or framework setup required.
 
 ```typescript
-// application/interfaces/order-repository.interface.ts
+// backend/src/application/interfaces/order-repository.interface.ts
 import { Order } from '../../domain/entities/order.entity';
 
 export interface IOrderRepository {
@@ -127,7 +135,7 @@ export interface IOrderRepository {
 ```
 
 ```typescript
-// application/use-cases/pay-order.usecase.ts
+// backend/src/application/use-cases/pay-order.usecase.ts
 import { IOrderRepository } from '../interfaces/order-repository.interface';
 
 export class PayOrderUseCase {
@@ -148,7 +156,7 @@ export class PayOrderUseCase {
 Implements the interfaces defined by the Application layer.
 
 ```typescript
-// adapters/repository/order.prisma.repository.ts
+// backend/src/adapters/repository/order.prisma.repository.ts
 import { IOrderRepository } from '../../application/interfaces/order-repository.interface';
 import { Order } from '../../domain/entities/order.entity';
 
@@ -164,19 +172,19 @@ export class OrderPrismaRepository implements IOrderRepository {
 }
 ```
 
-### Presenter — Delivery
+### API — Delivery
 
 Handles external requests and validates inputs via DTOs.
 
 ```typescript
-// presenter/dtos/pay-order.dto.ts
+// backend/src/api/dtos/pay-order.dto.ts
 export interface PayOrderDTO {
   orderId: string;
 }
 ```
 
 ```typescript
-// presenter/controllers/order.controller.ts
+// backend/src/api/controllers/order.controller.ts
 import { Request, Response } from 'express';
 import { PayOrderUseCase } from '../../application/use-cases/pay-order.usecase';
 import { PayOrderDTO } from '../dtos/pay-order.dto';
@@ -204,10 +212,10 @@ export class OrderController {
 All layers are wired together in a single entry point — typically `main.ts` or a dedicated DI module. **This is the only place** where concrete implementations are instantiated.
 
 ```typescript
-// main.ts
+// backend/src/main.ts
 import { OrderPrismaRepository } from './adapters/repository/order.prisma.repository';
 import { PayOrderUseCase } from './application/use-cases/pay-order.usecase';
-import { OrderController } from './presenter/controllers/order.controller';
+import { OrderController } from './api/controllers/order.controller';
 
 const repository = new OrderPrismaRepository();
 const useCase = new PayOrderUseCase(repository);
@@ -220,7 +228,7 @@ This is why Clean Architecture is testable: swap `OrderPrismaRepository` for an 
 
 ## AI Code Generation Checklist
 
-- [ ] **Strict dependency flow** — never import `adapters` or `presenter` into `domain` or `application`
+- [ ] **Strict dependency flow** — never import `adapters`, `infrastructure`, or `api` into `domain` or `application`
 - [ ] **Interface first** — define contracts in `application/interfaces/` before writing real implementations in `adapters/`
 - [ ] **Anemic domain check** — entities have behaviour (methods), not just data fields
 - [ ] **Value Objects** — used for primitives with business rules (e.g., `Money`, `Email`)
