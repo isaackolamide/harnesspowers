@@ -145,6 +145,7 @@ Read the project's file and folder layout. Identify:
 - Root-level structure (`src/`, `lib/`, `packages/`, `apps/`, etc.)
 - Package files (`package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`, etc.) — extract frameworks, major dependencies, scripts
 - Test structure and test runner
+- Mocking structures: identify if the codebase contains test builders or factories (e.g. `*Builder.ts` or `*Factory.ts`) and check for TDD configuration files
 - Build tooling, lint config, CI config (`.github/`, `Makefile`, etc.)
 
 This populates the **Project Structure** and **Testing Strategy** sections of tech-stack.md.
@@ -180,8 +181,8 @@ This informs roadmap.md — mark completed phases as done, show what's in progre
 
 Always invoke `superpowers:brainstorming`.
 
-- **New project:** Open-ended — explore problem space, requirements, and constraints
-- **Existing project (after analysis):** Evidence-grounded — confirm what was found, surface gaps, scope the new initiative on top of the existing base
+- **New project:** Open-ended — explore problem space, requirements, boundaries (including TDD and mock boundary practices), and constraints
+- **Existing project (after analysis):** Evidence-grounded — confirm what was found, surface gaps, align on testing/mocking expectations (e.g. which layers use Mock Builders), scope the new initiative on top of the existing base
 - **Seed input provided:** Focus only on open areas not already answered by the seed
 
 Do not run `agent-skills:interview-me` yet — that comes next and covers different ground.
@@ -242,6 +243,7 @@ Create three files in the chosen `sdd-specs/` location:
 
 For existing projects:
 - tech-stack.md Code Style must use a real snippet extracted from the existing codebase
+- tech-stack.md Testing Strategy must reflect the detected test runner and include a representative mock builder example snippet if builders were found in the codebase
 - roadmap.md must reflect actual project state — mark completed phases as done
 - If the codebase has contradictions (two competing patterns), surface them rather than silently picking one
 
@@ -274,3 +276,7 @@ Read the templates located in the `templates/` directory to format the core cons
 - Code Style section must include a real code snippet — extracted from existing code when available, user-provided for new projects
 - Ask user where `sdd-specs/` should live — no default assumption
 - All three files go in the chosen `sdd-specs/` directory
+- Never include absolute file paths (e.g. `file:///Users/username/...`) in generated output files. Refer to other specification files using paths starting with `sdd-specs/` as the root (e.g., `sdd-specs/mission.md`), rather than relative paths.
+
+
+

@@ -65,13 +65,13 @@ Assess whether enough information exists to plan, or whether a deep interview is
 **Assessment logic:**
 - Check seed input (Pre-Step 0) and project context (Step 1) against fields 1–4
 - Mark each field as: PRESENT (answered by seed or context) or MISSING
-- If all four core fields are PRESENT → skip Step 2b, probe Dependencies (line above) if not already clear from context, then proceed to Step 3
-- If any core field is MISSING → proceed to Step 2b (Deep Interview)
+- If all four core fields are PRESENT → skip the interview questions in Step 2b, but still generate the intent restatement and ask for confirmation before proceeding to Step 3.
+- If any core field is MISSING → proceed to Step 2b to run the interview.
 - Dependencies: always probe if not already clear from context, even when the four core fields are present. Use a single direct question if project context doesn't answer it: "Does this feature depend on or modify any existing systems, services, or APIs?"
 
-### Step 2b: Deep Interview (conditional)
+### Step 2b: Deep Interview & Intent Restatement
 
-Invoked only when one or more core fields are missing.
+If any core field is MISSING, invoke `agent-skills:interview-me`. If all core fields are PRESENT, skip the interview questions and immediately present the intent restatement below.
 
 **Skill invoked:** `agent-skills:interview-me`
 
@@ -117,7 +117,7 @@ Identify whether this feature requires specialized planning gates by matching th
 | **Migration Risk** | `refactor`, `rewrite`, `replace`, `deprecated`, `remove`, `delete`, `rename`, `schema`, `database migration` | Invoke `agent-skills:deprecation-and-migration` to write a dedicated `## Migration & Deprecation Plan` in `requirements.md` and inject corresponding tasks in `plan.md`. |
 | **Clean Architecture** | `controller`, `route`, `dto`, `use-case`, `repository`, `entity`, `domain`, `adapter`, `composition root` | Reference `harnesspowers:references/clean-architecture-ddd-reference.md` in `requirements.md`'s `## References` section. If it is a non-TypeScript project (like Python), add a note instructing agents to map the architectural concepts (layers, interfaces, dependency flow) conceptually to the target language rather than syntactically. |
 
-If no keywords match a group, omit the corresponding planning action and section to keep the output minimal and avoid planning bloat. Always include a reference to `agent-skills:references/testing-patterns.md` under references to guide test strategy.
+If no keywords match a group, omit the corresponding planning action and section to keep the output minimal and avoid planning bloat. Always include a reference to `harnesspowers:references/testing-patterns.md` under references to guide test strategy.
 
 ### Step 4: Run Planning-and-Task-Breakdown, Then Format plan.md
 
@@ -134,6 +134,7 @@ After user confirms the breakdown, format the output directly into `plan.md` usi
 **Key formatting rules:**
 - Each task gets a lightweight `Interfaces` line — declare what the task produces (function name + type) and what it consumes from prior tasks. This is NOT pre-written code; it is a contract declaration so subagent implementers know what signatures to implement and what is available from earlier slices. Full signatures are required for both produced and consumed functions — prose descriptions ("produces email sending functionality") are not acceptable; if you cannot name a function signature, the task decomposition is not done yet.
 - **Typing constraints**: Every interface contract MUST specify fully typed inputs and outputs. The use of `any`, `unknown`, or generic `Record<string, any>` is strictly forbidden unless there is no technical alternative. If returning or accepting a complex structure, define its key properties inline (e.g., `{id: string, name: string}`) rather than using a loose dictionary escape.
+- Each task header includes a `[ ]` checkbox (e.g., `### [ ] Task 1.1: [Task Name]`) to track task completion, and task acceptance criteria are plain bullet points.
 - Each phase ends with a `### Checkpoint — Phase N` block with a checkbox. `sdd-implement-plan` runs this verification before advancing to the next phase.
 - No code blocks, no TDD steps, no bash commands — those are `sdd-implement-plan`'s responsibility at execution time.
 
@@ -193,7 +194,7 @@ sdd-specs/plans/
 ## File Templates
 
 Read the templates located in the `templates/` directory to format the generated planning files:
-- **plan.md**: [templates/plan.md](templates/plan.md) — Phase-structured implementation plan containing checkboxes for acceptance criteria and checkpoints.
+- **plan.md**: [templates/plan.md](templates/plan.md) — Phase-structured implementation plan containing checkboxes for tasks, checkpoints, and plan code review.
 - **requirements.md**: [templates/requirements.md](templates/requirements.md) — Scope, decisions, context, and conditional constraints.
 - **validation.md**: [templates/validation.md](templates/validation.md) — Acceptance criteria checklist, test coverage requirements, and definition of done.
 
@@ -204,8 +205,8 @@ When you invoke `/sdd-plan-feature`:
 1. Check for seed input (prompt text, file reference, conversation context, roadmap phase reference) — parse through Who/Why/Success/Constraint lens and mark what is already answered
 2. If no seed: check for `sdd-specs/roadmap.md` → present next incomplete phase; if no roadmap: ask "what feature?"
 3. Read `sdd-specs/mission.md`, `sdd-specs/tech-stack.md`, `sdd-specs/roadmap.md` for project context (missing files don't block)
-4. Assess minimum viable fields (Who/Why/Success/Constraint) — if all present, skip to item 6 (probe Dependencies), then proceed to Step 3 (feature naming)
-5. If any core field is missing: invoke `agent-skills:interview-me` — one question at a time, informed by project context; require explicit "yes" before continuing
+4. Assess minimum viable fields (Who/Why/Success/Constraint).
+5. If any core field is missing: invoke `agent-skills:interview-me` to resolve them. If all are present, skip the interview. In both cases, present the finalized intent restatement and require explicit "yes" confirmation before continuing.
 6. Probe Dependencies if not already clear from context
 7. Confirm feature name (propose if inferrable; otherwise ask a single question) — create `sdd-specs/plans/YYYY-MM-DD-{feature-name}/` directory immediately after confirmation
 7.5. Run Conditional Planning Classification (Step 3.5) — check keywords for Security, Telemetry, Migration risk, and Clean Architecture. Prepare corresponding requirements/validation/plan additions. Always include the testing patterns reference.
@@ -217,12 +218,14 @@ When you invoke `/sdd-plan-feature`:
 
 ## Key Points
 
-- Minimum viable fields check (Who/Why/Success/Constraint + Dependencies) gates interview-me — only invoke the deep interview when fields are genuinely missing
+- Minimum viable fields check (Who/Why/Success/Constraint + Dependencies) gates the deep interview questions — only invoke the interactive interview when fields are genuinely missing, but always present the intent restatement for confirmation.
 - Single-pass planning: planning-and-task-breakdown output is formatted directly into plan.md — no intermediate files of any kind, no writing-plans pass
 - Plans contain interface contracts (function name + type per task), not code — TDD execution is sdd-implement-plan's job at implementation time. If you cannot name a function signature for a task, decompose that task further: inspect existing code for caller conventions, ask the user what the consuming task expects, or stub a name and type from the task description
-- Phase sections with checkpoint blocks enable phase-level verification gates during implementation
+- Phase sections with checkpoint blocks and task headers with checkboxes enable progress tracking during implementation
 - ADRs are project-level artifacts saved to `sdd-docs/decisions/` with sequential numbering — not in the feature directory
 - Pre-write review probes for gaps with a structured summary and a focused probe question before committing files to disk
 - requirements.md makes out-of-scope explicit, not just in-scope
 - requirements.md contains conditional sections (Security, Telemetry, Migrations) which are omitted by default unless triggered by keyword classification to avoid planning bloat
 - validation.md defines "done" before implementation starts — not after
+- Never include absolute file paths (e.g. `file:///Users/username/...`) in generated output files. Refer to other specification files using paths starting with `sdd-specs/` as the root (e.g., `sdd-specs/plans/YYYY-MM-DD-{feature-name}/plan.md`), rather than relative paths.
+

@@ -42,10 +42,17 @@ function getuserdata(id) {
 
 ## Testing Strategy
 
+For detailed implementation guidelines (AAA structure, mocks, and builders), refer to the shared `harnesspowers:references/testing-patterns.md` reference.
+
 ### Framework & Tools
 - Test Runner: [framework]
 - Assertion Library: [library]
 - Coverage Target: [%]
+
+### TDD & Mocking Conventions
+- **TDD Cycle**: Follow Red-Green-Refactor. Always write a failing test before introducing logic.
+- **Mock Boundaries**: Mock database calls, HTTP requests, file systems, and external API integrations. Never mock pure functions, internal utilities, or core domain logic.
+- **Builder Pattern**: Use builder classes (e.g. `UserBuilder`) to construct complex objects and mock values in test setups to protect tests against signature/constructor changes.
 
 ### Test Organization
 

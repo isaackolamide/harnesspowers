@@ -12,12 +12,12 @@ spec → plan → implement → review
                 findings → spec → plan → implement
 ```
 
-It owns no primitive skills itself. It delegates to four companion plugins: `agent-skills` (engineering primitives), `superpowers` (core disciplines), `frontend-design` (UI/design direction), and `claude-md-management` (CLAUDE.md tooling).
+It wraps skills from two major plugins -> `superpowers` and `agent-skills`
 
 ## Plugin Stack
 
 ```
-harnesspowers (orchestrator)      — 7 SDD workflow skills
+harnesspowers (orchestrator)      — 6 SDD workflow skills
      ↓ delegates to
 agent-skills (primitives)         — 24 engineering skills
 superpowers (discipline)          — TDD, subagent-driven execution, brainstorming
@@ -33,8 +33,7 @@ claude-md-management (tooling)    — CLAUDE.md audit and improvement
 | `/sdd-write-spec` | Create or extract SDD constitution — works for new and existing projects |
 | `/sdd-plan-feature` | Plan a feature from the roadmap — outputs plan.md/requirements.md/validation.md; triggers ADR for significant arch decisions |
 | `/sdd-implement-plan` | Execute a feature plan — 3-way mode (subagent-driven / autonomous / checkpoint), domain-aware dispatch, TDD enforced, phase checkpoints, developer whole-branch review |
-| `/sdd-verify-feature` | Validate spec compliance (via test-engineer), docs audit, and quality review checklist; appends review fixes to plan.md if needed |
-| `/sdd-integrate-feature` | Programmatic verification gate (clean git working tree, all checkboxes ticked), merges changes, and cleans up the branch |
+| `/sdd-verify-feature` | Validate spec compliance, audit code quality, update progress files, run pre-merge audits, and integrate/merge the branch |
 | `/optimise-claude-md` | Audit and improve any project's CLAUDE.md |
 
 ## Installation
@@ -122,8 +121,7 @@ Three commands, run in order. Pick the entry point that fits your situation.
 /sdd-write-spec        # Interviews you → sdd-specs/mission.md, tech-stack.md, roadmap.md
 /sdd-plan-feature      # "Add user authentication" → plan.md, requirements.md, validation.md
 /sdd-implement-plan    # Builds slice by slice with TDD, ends with initial whole-branch review
-/sdd-verify-feature    # Formally validates criteria, audits docs & checks quality
-/sdd-integrate-feature # Programmatic verification gate, merges and cleans up the branch
+/sdd-verify-feature    # Formally validates criteria, audits quality, ticks roadmap, and merges/cleans up branch
 ```
 
 For an existing codebase, `sdd-write-spec` reads your file structure and 50 commits of git history before asking anything.
@@ -134,8 +132,7 @@ For an existing codebase, `sdd-write-spec` reads your file structure and 50 comm
 /sdd-write-spec        # Feature Spec Mode → sdd-specs/features/YYYY-MM-DD-{name}-spec.md
 /sdd-plan-feature      # Reads feature spec → plan.md, requirements.md, validation.md
 /sdd-implement-plan    # Code & developer review
-/sdd-verify-feature    # Validate & quality audit
-/sdd-integrate-feature # Merge and cleanup
+/sdd-verify-feature    # Validate, audit, and merge
 ```
 
 Once `sdd-specs/mission.md`, `tech-stack.md`, and `roadmap.md` exist, `sdd-write-spec` switches to Feature Spec Mode: it maps your requirements against `mission.md` boundaries, checks for "never do" conflicts, and creates a scoped spec file instead of rewriting the constitution.
@@ -147,7 +144,6 @@ You already know what to build and the codebase is familiar.
 /sdd-plan-feature      # Describe the feature directly → plan.md, requirements.md, validation.md
 /sdd-implement-plan
 /sdd-verify-feature
-/sdd-integrate-feature
 ```
 
 ### Found bugs or missing features after testing
@@ -159,8 +155,7 @@ After manual testing reveals issues post-implementation, re-enter the workflow a
                        # Interviews you → sdd-specs/features/YYYY-MM-DD-{name}-spec.md
 /sdd-plan-feature      # Plan the fixes → plan.md, requirements.md, validation.md
 /sdd-implement-plan    # Implement with TDD
-/sdd-verify-feature    # Verify fixes and compliance
-/sdd-integrate-feature # Merge and cleanup
+/sdd-verify-feature    # Verify, audit, and merge
 ```
 
 This keeps post-impl fixes inside the same spec/plan/implement discipline as new features — findings don't get patched ad-hoc, they go through the workflow.
@@ -191,11 +186,7 @@ This keeps post-impl fixes inside the same spec/plan/implement discipline as new
 
 **`/sdd-verify-feature`**:
 
-- Automated verification gate (validation.md ticked); documentation check; code quality audit (findings written as review fixes in plan.md); ticks plan.md and roadmap.md when passed.
-
-**`/sdd-integrate-feature`**:
-
-- Ensures clean git status and all checklists are fully ticked, then handles branch merge and cleanup.
+- Automated verification gate (validation.md ticked); code quality audit; ticks plan.md/roadmap.md; runs pre-merge audits, and handles branch merge and cleanup.
 
 ### Inside each command
 
@@ -209,9 +200,7 @@ This keeps post-impl fixes inside the same spec/plan/implement discipline as new
 
 Inline modes enforce Red-Green-Refactor strictly: one failing test written before any code, minimal code to pass it, refactor only after green. At each phase boundary, the `### Checkpoint — Phase N` block from `plan.md` is verified before the next phase begins — a phase gate that catches integration issues early. The skill ends with Step 4.1 Whole-Branch Review (`superpowers:requesting-code-review`) to verify code compliance. It does not perform validation, quality audits, or branch merge.
 
-**`/sdd-verify-feature`** dispatches `agent-skills:test-engineer` to verify each criterion in `validation.md`. It then performs documentation checks and executes the `agent-skills:code-review-and-quality` checklist. If any critical or important quality findings are found, they are appended to the bottom of `plan.md` as `## Review Fixes`, and it exits so the user can re-run `/sdd-implement-plan`. If verification passes, it ticks off the features in `plan.md` and `roadmap.md`.
-
-**`/sdd-integrate-feature`** programmatically verifies that all checkboxes in `plan.md` and `validation.md` are marked `[x]` and that the working directory is clean. It then runs `superpowers:finishing-a-development-branch` using the auto-detected or user-supplied target base branch.
+**`/sdd-verify-feature`** dispatches `agent-skills:test-engineer` to verify each criterion in `validation.md`. It then performs the `agent-skills:code-review-and-quality` checklist, writing any Critical/Important findings to `plan.md` as `## Review Fixes` (handing back to `/sdd-implement-plan`). Once clean, it ticks `plan.md` and `roadmap.md`, performs programmatic pre-merge checks (git cleanliness, build/lint/test runs), and merges/cleans up the branch using `superpowers:finishing-a-development-branch`.
 
 ## What's NOT in This Plugin
 

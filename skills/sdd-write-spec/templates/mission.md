@@ -19,6 +19,8 @@ What does success look like?
 ### Always Do
 - [Practice 1]
 - [Practice 2]
+- Follow Test-Driven Development (TDD) for all logical changes.
+- Use mock builders or factories to set up test objects/state to keep tests isolated.
 
 ### Ask First
 - [Decision 1]
