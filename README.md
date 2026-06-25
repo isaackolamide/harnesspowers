@@ -116,7 +116,8 @@ ln -sf <path-to-harnesspowers> ~/.copilot/plugins/harnesspowers
 The SDD (Spec-Driven Development) workflow is structured into four main phases, executed in sequence.
 
 
-![alt text](image.png)
+<img width="1685" height="2890" alt="image" src="https://github.com/user-attachments/assets/ce54b9db-f1ac-4e86-9fa8-6374bd7983e2" />
+
 
 > [!TIP]
 > Unsure which skill to run for a specific task? Run `/using-harnesspowers` at the start of your session to view the authoritative routing tree across all plugins in the stack.
