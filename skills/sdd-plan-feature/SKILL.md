@@ -1,44 +1,47 @@
 ---
 name: sdd-plan-feature
-description: Use when planning a validated feature spec or roadmap milestone within an active SDD project to generate structured implementation files.
+description: Use when planning a validated feature spec file within an active SDD project to generate structured implementation files.
 metadata:
   type: implementation
   composesWith: [agent-skills:planning-and-task-breakdown, agent-skills:interview-me, agent-skills:security-and-hardening, agent-skills:observability-and-instrumentation, agent-skills:deprecation-and-migration]
 ---
 
-# SDD Feature Planner
+# Spec-Driven Development (SDD) Feature Planner
 
-Plan a feature within your SDD project. This skill wraps `agent-skills:planning-and-task-breakdown` to produce structured planning output in your project's `sdd-specs/` directory — the same way `sdd-write-spec` wraps brainstorming to produce the constitution.
+Plan a feature within your SDD project. This skill wraps `agent-skills:planning-and-task-breakdown` to produce structured planning output in your project's `sdd-specs/plans/` directory.
 
 ## Workflow
 
-### Pre-Step 0: Seed Input Check
+### Pre-Step 0: Feature Spec Verification
 
-Before reading any file, check whether the user provided feature context when invoking the skill:
+Before reading any project files or starting the plan, verify that a valid feature spec file (e.g., `sdd-specs/features/YYYY-MM-DD-<feature-name>-spec.md`) is provided or available:
 
-**Accepted seed formats:**
-- Free-form prompt text or bullet-point brief
-- A reference to a file (e.g., "plan the feature described in `docs/ideas/search.md`") — read that file
-- Conversation context from a prior `agent-skills:interview-me`, brainstorming, or `sdd-write-spec` session
-- A reference to a roadmap phase (e.g., "next item on the roadmap", "Phase 3")
+1. **Verify Input Reference**:
+   - Check if a path to a feature spec file was provided as seed input or referenced in the current context.
+   - If no feature spec file is provided/referenced, check the `sdd-specs/features/` directory for existing feature spec files:
+     - **Multiple files found** → Present the list to the user and ask them to select which feature spec they want to plan.
+     - **Exactly one file found** → Propose planning from that file and ask for confirmation.
+     - **No files found** → **STOPS**. You must inform the user that a feature spec file is required to proceed. Direct the user to run `/sdd-write-spec` first to generate a feature spec file. Do not proceed to planning.
 
-**If seed input was provided:**
-- Parse it through the 4-field lens: Who, Why, Success, Constraint
-- Mark which fields are already answered — these are skipped in subsequent interview steps
-- Do not re-ask things already covered by the seed
+2. **Read & Parse Feature Spec**:
+   - Read the verified feature spec file.
+   - Parse the feature spec sections to extract the planning details:
+     - **Outcome/Why**: mapped from the `Objective` section.
+     - **Who**: mapped from the `User & Stakeholder` section.
+     - **Success**: mapped from `Acceptance Criteria` and `Success Metrics` sections.
+     - **Constraint**: mapped from `Technical Constraints` section.
+     - **Dependencies**: mapped from the `Dependencies` section.
+     - **Stakeholder Flags**: mapped from the `Stakeholder Flags` section.
 
-**If no seed input:**
-- Check whether `sdd-specs/roadmap.md` exists
-  - **Yes:** Read it, identify the next incomplete phase/milestone, present to user for confirmation
-  - **No:** Ask: "What feature are you planning?" (single question) and proceed from the answer
+---
 
 ### Step 1: Gather Project Context
 
-Read project context **before** any user questions, so questions are informed by existing constraints.
+Read project context to inform the planning process:
 
 1. Read `sdd-specs/mission.md` (if it exists) — extract objective, boundaries, constraints
 2. Read `sdd-specs/tech-stack.md` (if it exists) — extract project structure, code style, testing strategy
-3. Read `sdd-specs/roadmap.md` (if it exists and not already read in Pre-Step 0) — understand where this feature fits in the project timeline
+3. Read `sdd-specs/roadmap.md` (if it exists) — understand where this feature fits in the project timeline
 
 Missing files do not block. Note their absence internally but proceed with whatever context is available.
 
@@ -51,37 +54,24 @@ PROJECT CONTEXT:
 - Boundaries:      [from mission.md or "not specified"]
 ```
 
+---
+
 ### Step 2: Minimum Viable Fields Check
 
 Assess whether enough information exists to plan, or whether a deep interview is needed.
 
 **The five fields:**
 1. **Who** — who benefits from this feature? (stakeholder, user persona)
-2. **Why** — why build it now? (what prompted this, what problem it solves)
+2. **Why** / **Outcome** — what problem does it solve and what does it do?
 3. **Success** — what does "done" look like? (concrete outcome)
 4. **Constraint** — what is the binding limit? (time, scope, compatibility, performance)
-5. **Dependencies** — does this feature touch or depend on existing systems? (optional but always probed if context is available)
+5. **Dependencies** — does this feature touch or depend on existing systems?
 
 **Assessment logic:**
-- Check seed input (Pre-Step 0) and project context (Step 1) against fields 1–4
-- Mark each field as: PRESENT (answered by seed or context) or MISSING
-- If all four core fields are PRESENT → skip the interview questions in Step 2b, but still generate the intent restatement and ask for confirmation before proceeding to Step 3.
-- If any core field is MISSING → proceed to Step 2b to run the interview.
-- Dependencies: always probe if not already clear from context, even when the four core fields are present. Use a single direct question if project context doesn't answer it: "Does this feature depend on or modify any existing systems, services, or APIs?"
-
-### Step 2b: Deep Interview & Intent Restatement
-
-If any core field is MISSING, invoke `agent-skills:interview-me`. If all core fields are PRESENT, skip the interview questions and immediately present the intent restatement below.
-
-**Skill invoked:** `agent-skills:interview-me`
-
-**Instructions for invocation:**
-- Frame questions around what the seed and project context could NOT answer — never re-ask covered ground
-- Use the project context block from Step 1 to make informed guesses (attach them to each question per interview-me protocol)
-
-**Stop condition:** interview-me's native stop — can predict the user's reaction to the next three questions, and all four core fields are filled.
-
-**Output:** A confirmed intent restatement:
+- Check parsed fields from the feature spec (Pre-Step 0) and project context (Step 1).
+- Mark each field as: PRESENT or MISSING.
+- Since info is loaded from the feature spec file, all core fields should normally be PRESENT.
+- Propose the finalized intent restatement to the user:
 ```
 - Outcome:      <one line>
 - User:         <one line>
@@ -90,25 +80,24 @@ If any core field is MISSING, invoke `agent-skills:interview-me`. If all core fi
 - Constraint:   <one line>
 - Out of scope: <one line>
 ```
+- Wait for explicit "yes" or "lgtm" confirmation before proceeding.
+- If any core details are missing or need clarification: invoke `agent-skills:interview-me` to resolve them before presenting the restatement.
 
-Wait for explicit "yes" confirmation before proceeding.
+---
 
 ### Step 3: Feature Naming
 
 Establish the feature name for the output directory.
 
-- If inferrable from seed input or interview output, propose it:
-  > "I'll name this feature `{proposed-name}` (directory: `sdd-specs/plans/YYYY-MM-DD-{proposed-name}/`). Good?"
-- If not inferrable, ask:
-  > "What should this feature be called? (used as `sdd-specs/plans/YYYY-MM-DD-{name}/`)"
+- Propose the feature name based on the feature spec name (e.g. `sdd-specs/plans/YYYY-MM-DD-{feature-name}/`).
+- Confirm naming and directory path with a single confirmation question.
+- Create the feature directory `sdd-specs/plans/YYYY-MM-DD-{feature-name}/` immediately after the name is confirmed.
 
-This is a single question — not an interview. Branch strategy is **not** asked here; it belongs to implementation time and is handled by `sdd-implement-plan` or `agent-skills:git-workflow-and-versioning`.
-
-Create the feature directory `sdd-specs/plans/YYYY-MM-DD-{feature-name}/` immediately after the name is confirmed.
+---
 
 ### Step 3.5: Conditional Planning Classification
 
-Identify whether this feature requires specialized planning gates by matching the feature description, intent restatement, and seed files against these keyword groups:
+Identify whether this feature requires specialized planning gates by matching the feature description, intent restatement, and feature spec file against these keyword groups:
 
 | Classification | Trigger Keywords | Required Planning Action |
 |----------------|------------------|--------------------------|
@@ -119,13 +108,15 @@ Identify whether this feature requires specialized planning gates by matching th
 
 If no keywords match a group, omit the corresponding planning action and section to keep the output minimal and avoid planning bloat. Always include a reference to `harnesspowers:references/testing-patterns.md` under references to guide test strategy.
 
+---
+
 ### Step 4: Run Planning-and-Task-Breakdown, Then Format plan.md
 
 Trigger `agent-skills:planning-and-task-breakdown` with:
-- Confirmed feature description (from intent restatement or seed input)
+- Confirmed feature description (from intent restatement or feature spec)
 - Project context from Step 1 (mission, tech stack, roadmap phase)
 - Constraints and out-of-scope from Steps 2/2b
-- Any referenced files read during Pre-Step 0
+- The feature spec file contents
 
 **User confirmation gate:** Do not proceed until the task order, sizing, and checkpoints are confirmed by the user.
 
@@ -144,6 +135,8 @@ After user confirms the breakdown, format the output directly into `plan.md` usi
 - **Cross-reference:** Add the ADR path to `requirements.md` under the Decisions section
 
 Apply the ADR trigger only to choices where the rationale and rejected alternatives have future value — not to every decision.
+
+---
 
 ### Step 5: Pre-Write Review
 
@@ -179,6 +172,8 @@ validation.md:
 
 **To proceed to Step 6:** present the summary, ask the focused probe question, then wait for explicit confirmation. **The user must reply with a lowercase confirmation keyword (e.g. exactly `"yes"`, `"looks good"`, or `"write it"`).** General or ambiguous confirmation phrases ("sure", "whatever", "okay", or "just do it") must not be accepted — hold the gate and re-ask the probe question until explicit confirmation is given. Do not skip the probe question even if the user has expressed urgency.
 
+---
+
 ### Step 6: Output
 
 Generate the three files:
@@ -191,6 +186,8 @@ sdd-specs/plans/
     └── validation.md    → How to know implementation succeeded and can be merged
 ```
 
+---
+
 ## File Templates
 
 Read the templates located in the `templates/` directory to format the generated planning files:
@@ -202,30 +199,29 @@ Read the templates located in the `templates/` directory to format the generated
 
 When you invoke `/sdd-plan-feature`:
 
-1. Check for seed input (prompt text, file reference, conversation context, roadmap phase reference) — parse through Who/Why/Success/Constraint lens and mark what is already answered
-2. If no seed: check for `sdd-specs/roadmap.md` → present next incomplete phase; if no roadmap: ask "what feature?"
-3. Read `sdd-specs/mission.md`, `sdd-specs/tech-stack.md`, `sdd-specs/roadmap.md` for project context (missing files don't block)
+1. Run Pre-Step 0: Feature Spec Verification. Ensure a feature spec file exists and is selected/provided. If not, STOP and direct the user to `/sdd-write-spec`.
+2. Read the selected feature spec file and parse its fields (Who, Why, Success, Constraint, Dependencies, Stakeholder Flags).
+3. Read `sdd-specs/mission.md`, `sdd-specs/tech-stack.md`, and `sdd-specs/roadmap.md` for project context (missing files don't block, but their absence should be noted).
 4. Assess minimum viable fields (Who/Why/Success/Constraint).
-5. If any core field is missing: invoke `agent-skills:interview-me` to resolve them. If all are present, skip the interview. In both cases, present the finalized intent restatement and require explicit "yes" confirmation before continuing.
-6. Probe Dependencies if not already clear from context
-7. Confirm feature name (propose if inferrable; otherwise ask a single question) — create `sdd-specs/plans/YYYY-MM-DD-{feature-name}/` directory immediately after confirmation
-7.5. Run Conditional Planning Classification (Step 3.5) — check keywords for Security, Telemetry, Migration risk, and Clean Architecture. Prepare corresponding requirements/validation/plan additions. Always include the testing patterns reference.
-8. Trigger `agent-skills:planning-and-task-breakdown` — dependency graph, vertical slices, task sizing, checkpoints
-9. If a significant architectural decision surfaces: invoke `agent-skills:documentation-and-adrs` → save to `sdd-docs/decisions/ADR-{NNN}-{title}.md`; cross-reference in requirements.md
-10. Confirm task order and sizing with user before continuing — then format output directly into `plan.md` using the templates (no breakdown.md intermediate file)
-11. Present pre-write summary of all three files — ask focused probe; resolve concerns before writing
-12. Write plan.md, requirements.md, and validation.md to `sdd-specs/plans/YYYY-MM-DD-{feature-name}/`
+5. Propose the finalized intent restatement (derived from the feature spec) and require explicit "yes" confirmation before continuing. If any core details are missing, invoke `agent-skills:interview-me`.
+6. Confirm feature name (propose if inferrable; otherwise ask a single question) — create `sdd-specs/plans/YYYY-MM-DD-{feature-name}/` directory immediately after confirmation.
+7. Run Conditional Planning Classification (Step 3.5) — check keywords for Security, Telemetry, Migration risk, and Clean Architecture. Prepare corresponding requirements/validation/plan additions. Always include the testing patterns reference.
+8. Trigger `agent-skills:planning-and-task-breakdown` — dependency graph, vertical slices, task sizing, checkpoints.
+9. If a significant architectural decision surfaces: invoke `agent-skills:documentation-and-adrs` → save to `sdd-docs/decisions/ADR-{NNN}-{title}.md`; cross-reference in requirements.md.
+10. Confirm task order and sizing with user before continuing — then format output directly into `plan.md` using the templates.
+11. Present pre-write summary of all three files — ask focused probe; resolve concerns before writing.
+12. Write plan.md, requirements.md, and validation.md to `sdd-specs/plans/YYYY-MM-DD-{feature-name}/`.
 
 ## Key Points
 
+- Always plan from a feature spec file: A valid feature spec file (e.g. `sdd-specs/features/YYYY-MM-DD-<name>-spec.md`) is a hard prerequisite for running `/sdd-plan-feature`. Fallback to the roadmap or planning from a blank state is no longer allowed.
 - Minimum viable fields check (Who/Why/Success/Constraint + Dependencies) gates the deep interview questions — only invoke the interactive interview when fields are genuinely missing, but always present the intent restatement for confirmation.
-- Single-pass planning: planning-and-task-breakdown output is formatted directly into plan.md — no intermediate files of any kind, no writing-plans pass
-- Plans contain interface contracts (function name + type per task), not code — TDD execution is sdd-implement-plan's job at implementation time. If you cannot name a function signature for a task, decompose that task further: inspect existing code for caller conventions, ask the user what the consuming task expects, or stub a name and type from the task description
-- Phase sections with checkpoint blocks and task headers with checkboxes enable progress tracking during implementation
-- ADRs are project-level artifacts saved to `sdd-docs/decisions/` with sequential numbering — not in the feature directory
-- Pre-write review probes for gaps with a structured summary and a focused probe question before committing files to disk
-- requirements.md makes out-of-scope explicit, not just in-scope
-- requirements.md contains conditional sections (Security, Telemetry, Migrations) which are omitted by default unless triggered by keyword classification to avoid planning bloat
-- validation.md defines "done" before implementation starts — not after
+- Single-pass planning: planning-and-task-breakdown output is formatted directly into plan.md — no intermediate files of any kind, no writing-plans pass.
+- Plans contain interface contracts (function name + type per task), not code — TDD execution is sdd-implement-plan's job at implementation time. If you cannot name a function signature for a task, decompose that task further: inspect existing code for caller conventions, ask the user what the consuming task expects, or stub a name and type from the task description.
+- Phase sections with checkpoint blocks and task headers with checkboxes enable progress tracking during implementation.
+- ADRs are project-level artifacts saved to `sdd-docs/decisions/` with sequential numbering — not in the feature directory.
+- Pre-write review probes for gaps with a structured summary and a focused probe question before committing files to disk.
+- requirements.md makes out-of-scope explicit, not just in-scope.
+- requirements.md contains conditional sections (Security, Telemetry, Migrations) which are omitted by default unless triggered by keyword classification to avoid planning bloat.
+- validation.md defines "done" before implementation starts — not after.
 - Never include absolute file paths (e.g. `file:///Users/username/...`) in generated output files. Refer to other specification files using paths starting with `sdd-specs/` as the root (e.g., `sdd-specs/plans/YYYY-MM-DD-{feature-name}/plan.md`), rather than relative paths.
-

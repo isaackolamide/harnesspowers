@@ -1,18 +1,18 @@
 ---
 name: sdd-write-spec
-description: Use when starting a new project, setting up the core specification files, or drafting a feature spec within an existing project configuration.
+description: Use when drafting a feature spec within an active SDD project where a complete project constitution exists.
 metadata:
   type: implementation
   composesWith: [superpowers:brainstorming, agent-skills:interview-me]
 ---
 
-# Software Design Document (SDD) Generator
+# Spec-Driven Development (SDD) Feature Spec Generator
 
-Create a structured specification "constitution" with three core files in your project's `sdd-specs/` directory. Works for new projects and new initiatives inside an existing codebase. When a constitution already exists and you have product requirements for a specific feature, switches to **Feature Spec Mode** — updates the roadmap and creates a scoped feature spec ready for `sdd-plan-feature`.
+Generate a scoped feature specification (`sdd-specs/features/YYYY-MM-DD-<feature-name>-spec.md`) and update the project roadmap. 
 
 ## Workflow
 
-### Pre-Step 0: Constitution Detection
+### Pre-Step 0: Constitution Check
 
 **Before anything else**, check whether all three constitution files exist:
 
@@ -22,19 +22,14 @@ sdd-specs/tech-stack.md
 sdd-specs/roadmap.md
 ```
 
-- **All three exist** → **Feature Spec Mode** (jump to that section below). Do not run Constitution Mode.
-- **None exist** → Constitution Mode (continue with Pre-Step 1 below).
-- **Partial** (only some files exist): surface the gap — ask the user whether they intend to complete the constitution or start fresh before proceeding.
+- **All three exist** → Proceed to Step FS-1.
+- **Partial or None exist** → **STOPS**. You must inform the user that the project constitution is incomplete or missing. Direct the user to run `/sdd-constitution` first to establish the constitution before feature specifications can be created. Do not proceed to brainstorming or feature spec generation.
 
 ---
 
-## Feature Spec Mode
+## Feature Spec Generation
 
-Entered only when all three constitution files exist.
-
-**Do not run brainstorming. Do not create `tech-stack.md`. Do not create a feature-level `roadmap.md`.**
-
-### FS-1: Read Constitution + Parse Requirements
+### FS-1: Read Constitution & Parse Requirements
 
 1. Read `sdd-specs/mission.md`, `sdd-specs/tech-stack.md`, `sdd-specs/roadmap.md`
 2. If seed requirements were provided, parse them through the feature lens:
@@ -107,176 +102,9 @@ sdd-specs/
 
 Refer to the template located at [templates/feature-spec.md](templates/feature-spec.md) to format the generated feature spec file.
 
----
-
-## Constitution Mode
-
-### Pre-Step 1: Seed Input Check
-
-Check if the user provided any context when invoking the skill — draft ideas, requirements notes, a pasted brief, or bullet points.
-
-**If seed input was provided:**
-- Parse it through the 6-area lens: Objective, Boundaries, Commands, Project Structure, Code Style, Testing Strategy
-- Mark which areas the seed answers, which remain open
-- Carry pre-filled answers forward — skip those topics in brainstorming and interview
-
-**If no seed input:** proceed with empty slate.
-
-Accepted seed formats: free-form text, pasted requirements doc, bullet-point ideas. Treat all as partial evidence, not final spec.
-
----
-
-### Pre-Step 2: Context Check
-
-Ask: **"Is there an existing codebase for this initiative?"**
-
-- **Yes →** run the Analysis Branch (A1–A3) before brainstorming
-- **No →** skip directly to Step 1
-
----
-
-### Analysis Branch — Existing Codebase Only
-
-Run A1–A3 before brainstorming. Carry evidence into Step 1 so brainstorming is focused confirmation rather than open-ended exploration.
-
-#### A1: Analyse Codebase Structure
-
-Read the project's file and folder layout. Identify:
-- Root-level structure (`src/`, `lib/`, `packages/`, `apps/`, etc.)
-- Package files (`package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`, etc.) — extract frameworks, major dependencies, scripts
-- Test structure and test runner
-- Mocking structures: identify if the codebase contains test builders or factories (e.g. `*Builder.ts` or `*Factory.ts`) and check for TDD configuration files
-- Build tooling, lint config, CI config (`.github/`, `Makefile`, etc.)
-
-This populates the **Project Structure** and **Testing Strategy** sections of tech-stack.md.
-
-#### A2: Read Existing Documentation
-
-Look for and read:
-- `README.md`
-- Any `sdd-docs/`, `documentation/`, or `wiki/` folders
-- Inline architecture comments in entry-point files
-- `CHANGELOG.md` or tagged releases for project history
-
-Extract any stated objectives, constraints, or architectural decisions already documented.
-
-#### A3: Analyse Git History
-
-```bash
-git log --oneline -50
-git shortlog -sn --no-merges | head -10
-git log --format="%s" | grep -oE "^(feat|fix|refactor|chore|docs)" | sort | uniq -c | sort -rn
-```
-
-Identify:
-- Feature areas with the most activity (reveals priorities)
-- Phases of development already completed
-- Recurring concerns in commit messages that reveal undocumented boundaries
-
-This informs roadmap.md — mark completed phases as done, show what's in progress.
-
----
-
-### Step 1: Brainstorm
-
-Always invoke `superpowers:brainstorming`.
-
-- **New project:** Open-ended — explore problem space, requirements, boundaries (including TDD and mock boundary practices), and constraints
-- **Existing project (after analysis):** Evidence-grounded — confirm what was found, surface gaps, align on testing/mocking expectations (e.g. which layers use Mock Builders), scope the new initiative on top of the existing base
-- **Seed input provided:** Focus only on open areas not already answered by the seed
-
-Do not run `agent-skills:interview-me` yet — that comes next and covers different ground.
-
----
-
-### Step 2: Intent Clarity Check
-
-Assess whether the intent has the four minimum viable fields — skipping any already answered by seed input or codebase analysis:
-
-- **Who** — who is the user / stakeholder?
-- **Why** — why does this need to exist now?
-- **Success** — what does "done" look like?
-- **Constraint** — what is the binding limit?
-
-**If any are missing:** invoke `agent-skills:interview-me` to fill gaps. Frame questions around what code and brainstorming couldn't answer — do not re-ask things already covered.
-
-**If all four are present:** skip `agent-skills:interview-me`.
-
----
-
-### Step 3: Choose Specs Location
-
-Ask where the `sdd-specs/` folder should live:
-- `project-root/sdd-specs/` — Default
-- `docs/sdd-specs/` — Nested under existing documentation
-- `packages/sdd-specs/` — In a monorepo package
-- Custom path the user specifies
-
----
-
-### Step 4: Pre-Write Confirmation Gate
-
-Before writing any file, present a restate:
-
-```
-Here's what I understand we're building:
-
-- Outcome:      <one line>
-- User:         <one line — who benefits>
-- Why now:      <one line — what prompted this>
-- Success:      <one line — how we know it worked>
-- Constraint:   <one line — the binding limit>
-- Out of scope: <one line — what we're explicitly not building>
-```
-
-Wait for explicit confirmation before writing. "Sounds good" or "whatever you think" is not a yes — ask "Anything to refine?" if the response is ambiguous.
-
----
-
-### Step 5: Generate Constitution
-
-Create three files in the chosen `sdd-specs/` location:
-
-1. **mission.md** — Objective, Boundaries, Commands
-2. **tech-stack.md** — Project Structure, Code Style, Testing Strategy
-3. **roadmap.md** — Phases, milestones, timeline
-
-For existing projects:
-- tech-stack.md Code Style must use a real snippet extracted from the existing codebase
-- tech-stack.md Testing Strategy must reflect the detected test runner and include a representative mock builder example snippet if builders were found in the codebase
-- roadmap.md must reflect actual project state — mark completed phases as done
-- If the codebase has contradictions (two competing patterns), surface them rather than silently picking one
-
----
-
-## Output
-
-```
-{chosen-path}/
-└── sdd-specs/
-    ├── mission.md
-    ├── tech-stack.md
-    └── roadmap.md
-```
-
----
-
-## File Templates
-
-Read the templates located in the `templates/` directory to format the core constitution files:
-- **mission.md**: [templates/mission.md](templates/mission.md) — Target objective, business rationales, user persona, success criteria, and commands.
-- **tech-stack.md**: [templates/tech-stack.md](templates/tech-stack.md) — Core application directory mapping, code style guidelines, and test harness runner conventions.
-- **roadmap.md**: [templates/roadmap.md](templates/roadmap.md) — Scoped project milestones, phases, and release rollout steps.
-
 ## Key Points
 
-- Seed input short-circuits brainstorm/interview for topics it already covers — never re-ask answered questions
-- Analysis (A1–A3) runs before any user questions — come to brainstorming with evidence, not a blank form
-- Both paths (new and existing) produce the same three-file output
-- Code Style section must include a real code snippet — extracted from existing code when available, user-provided for new projects
-- Ask user where `sdd-specs/` should live — no default assumption
-- All three files go in the chosen `sdd-specs/` directory
-- Never include absolute file paths (e.g. `file:///Users/username/...`) in generated output files. Refer to other specification files using paths starting with `sdd-specs/` as the root (e.g., `sdd-specs/mission.md`), rather than relative paths.
-
-
-
+- Both new projects and existing codebases must have their constitution files (`mission.md`, `tech-stack.md`, `roadmap.md`) generated via `sdd-constitution` before `sdd-write-spec` is used.
+- FS-2 Constitution Alignment is a hard stop for "Never Do" violations.
+- FS-3 Confirmation Gate requires explicit, unambiguous confirmation before editing or creating spec files.
+- Never include absolute file paths (e.g. `file:///Users/username/...`) in generated output files. Refer to other specification files using paths starting with `sdd-specs/` as the root (e.g., `sdd-specs/features/YYYY-MM-DD-<feature-name>-spec.md`), rather than relative paths.

@@ -20,10 +20,10 @@ Task arrives
     ├── Rough concept, need to explore variants? → agent-skills:idea-refine
     │
     ├── Need a spec?
-    │   ├── No constitution yet                  → harnesspowers:sdd-write-spec (constitution mode)
+    │   ├── No constitution yet                  → harnesspowers:sdd-constitution
     │   │                                           (wraps superpowers:brainstorming + agent-skills:interview-me + codebase analysis)
     │   │                                           outputs: sdd-specs/mission.md, sdd-specs/tech-stack.md, sdd-specs/roadmap.md
-    │   ├── Constitution exists + feature reqs   → harnesspowers:sdd-write-spec (feature spec mode)
+    │   ├── Constitution exists + feature reqs   → harnesspowers:sdd-write-spec
     │   │                                           updates sdd-specs/roadmap.md, creates sdd-specs/features/YYYY-MM-DD-<name>-spec.md
     │   └── Have a feature spec, want a plan     → harnesspowers:sdd-plan-feature
     │
@@ -39,7 +39,7 @@ Task arrives
     │   integrating/merging the branch?             (wraps agent-skills:code-review-and-quality + test-engineer persona
     │                                                + superpowers:finishing-a-development-branch)
     │
-    ├── Found bugs/missing features after        → harnesspowers:sdd-write-spec (feature spec mode)
+    ├── Found bugs/missing features after        → harnesspowers:sdd-write-spec
     │   manual testing post-implementation?         seed input: inline notes or path to findings file
     │                                               then: sdd-plan-feature → sdd-implement-plan
     │
@@ -55,7 +55,7 @@ Task arrives
     ├── Writing or running tests?                → superpowers:test-driven-development
     ├── Something broke?                         → superpowers:systematic-debugging
     │   ├── Need structured doubt-first analysis? → agent-skills:doubt-driven-development
-    │   └── After fix lands:                      → harnesspowers:sdd-write-spec (Feature Spec mode)
+    │   └── After fix lands:                      → harnesspowers:sdd-write-spec
     │                                                seed = bug report / findings
     │                                                updates roadmap.md + creates sdd-specs/features/YYYY-MM-DD-{fix}-spec.md
     │
@@ -124,7 +124,7 @@ Every skill includes a verification step. A task is not complete until verificat
 
 1. **Check for an applicable skill before starting work.**
 2. **Skills are workflows, not suggestions.** Follow the steps in order.
-3. Multiple skills can apply in sequence. Example: `agent-skills:interview-me` → `harnesspowers:sdd-write-spec` → `harnesspowers:sdd-plan-feature` → `harnesspowers:sdd-implement-plan` → `harnesspowers:sdd-verify-feature`.
+3. Multiple skills can apply in sequence. Example: `harnesspowers:sdd-constitution` → `harnesspowers:sdd-write-spec` → `harnesspowers:sdd-plan-feature` → `harnesspowers:sdd-implement-plan` → `harnesspowers:sdd-verify-feature`.
 
 ## Plugin Stack Overview
 
@@ -136,4 +136,4 @@ Every skill includes a verification step. A task is not complete until verificat
 | **frontend-design** | Design direction and frontend UI engineering quality |
 | **claude-md-management** | CLAUDE.md audit and improvement tooling |
 
-Use harnesspowers wrapper skills (sdd-write-spec, sdd-plan-feature, sdd-implement-plan) when running the SDD workflow. Use agent-skills primitives directly for standalone tasks outside that workflow.
+Use harnesspowers wrapper skills (sdd-constitution, sdd-write-spec, sdd-plan-feature, sdd-implement-plan) when running the SDD workflow. Use agent-skills primitives directly for standalone tasks outside that workflow.

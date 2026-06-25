@@ -17,7 +17,7 @@ It wraps skills from two major plugins -> `superpowers` and `agent-skills`
 ## Plugin Stack
 
 ```
-harnesspowers (orchestrator)      — 6 SDD workflow skills
+harnesspowers (orchestrator)      — 7 SDD workflow skills
      ↓ delegates to
 agent-skills (primitives)         — 24 engineering skills
 superpowers (discipline)          — TDD, subagent-driven execution, brainstorming
@@ -30,8 +30,9 @@ claude-md-management (tooling)    — CLAUDE.md audit and improvement
 | Skill | What It Does |
 |-------|-------------|
 | `/using-harnesspowers` | Routing tree — which skill for which task, across all plugins |
-| `/sdd-write-spec` | Create or extract SDD constitution — works for new and existing projects |
-| `/sdd-plan-feature` | Plan a feature from the roadmap — outputs plan.md/requirements.md/validation.md; triggers ADR for significant arch decisions |
+| `/sdd-constitution` | Create or extract SDD constitution — works for new and existing projects |
+| `/sdd-write-spec` | Create feature spec for a new feature — updates project roadmap and generates feature spec |
+| `/sdd-plan-feature` | Plan a feature from a feature spec file — outputs plan.md/requirements.md/validation.md; triggers ADR for significant arch decisions |
 | `/sdd-implement-plan` | Execute a feature plan — 3-way mode (subagent-driven / autonomous / checkpoint), domain-aware dispatch, TDD enforced, phase checkpoints, developer whole-branch review |
 | `/sdd-verify-feature` | Validate spec compliance, audit code quality, update progress files, run pre-merge audits, and integrate/merge the branch |
 | `/optimise-claude-md` | Audit and improve any project's CLAUDE.md |
@@ -115,9 +116,7 @@ ln -sf <path-to-harnesspowers> ~/.copilot/plugins/harnesspowers
 
 The SDD (Spec-Driven Development) workflow is structured into four main phases, executed in sequence.
 
-
-<img width="1685" height="2890" alt="image" src="https://github.com/user-attachments/assets/ce54b9db-f1ac-4e86-9fa8-6374bd7983e2" />
-
+![alt text](image.png)
 
 > [!TIP]
 > Unsure which skill to run for a specific task? Run `/using-harnesspowers` at the start of your session to view the authoritative routing tree across all plugins in the stack.
@@ -129,34 +128,27 @@ Pick the starting command that matches your current project state:
 #### 1. Starting Fresh (New Project or Greenfield Initiative)
 You do not have a project constitution yet. You need to bootstrap the core scope, guidelines, and roadmap.
 ```text
-/sdd-write-spec        # Interactive interview → generates mission.md, tech-stack.md, roadmap.md
+/sdd-constitution      # Interactive interview → generates mission.md, tech-stack.md, roadmap.md
+/sdd-write-spec        # Propose new feature spec → features/YYYY-MM-DD-{feature}-spec.md
 /sdd-plan-feature      # Choose feature/milestone → plan.md, requirements.md, validation.md
 /sdd-implement-plan    # TDD slice-by-slice implementation loop
 /sdd-verify-feature    # Formal validation, quality audits, ticks roadmap, merges branch
 ```
-*Note: For an existing codebase, `/sdd-write-spec` will automatically read your folder structure and commit history to pre-fill context before asking any questions.*
+*Note: For an existing codebase, `/sdd-constitution` will automatically read your folder structure and commit history to pre-fill context before asking any questions.*
 
 #### 2. Constitution Exists (Adding a New Feature)
 The project constitution already exists. You are starting a new feature from the roadmap.
 ```text
-/sdd-write-spec        # Runs in Feature Spec Mode → sdd-specs/features/YYYY-MM-DD-{feature}-spec.md
+/sdd-write-spec        # Creates feature spec → sdd-specs/features/YYYY-MM-DD-{feature}-spec.md
 /sdd-plan-feature      # Reads feature spec → plan.md, requirements.md, validation.md
 /sdd-implement-plan    # Runs implementation slices & developer review
 /sdd-verify-feature    # Formally validates criteria & integrates branch
 ```
 
-#### 3. Scope is Clear (Skip Feature Spec)
-You already know exactly what to build, and the codebase is highly familiar.
-```text
-/sdd-plan-feature      # Describe feature directly → plan.md, requirements.md, validation.md
-/sdd-implement-plan    # TDD execution loop
-/sdd-verify-feature    # Validate, audit, and merge
-```
-
-#### 4. Post-Implementation Findings (Bugs & Feedback)
+#### 3. Post-Implementation Findings (Bugs & Feedback)
 Manual testing or review revealed issues or adjustments after running `/sdd-implement-plan`. Feed findings back into the spec/plan loop to handle them with discipline:
 ```text
-/sdd-write-spec        # Feature Spec Mode — provides findings as seed (inline or --file path/to/notes.md)
+/sdd-write-spec        # Generate spec from findings seed (inline or --file path/to/notes.md)
 /sdd-plan-feature      # Plan the fixes → plan.md, requirements.md, validation.md
 /sdd-implement-plan    # Implement fixes with TDD
 /sdd-verify-feature    # Validate fixes and complete integration
@@ -166,13 +158,13 @@ Manual testing or review revealed issues or adjustments after running `/sdd-impl
 
 ### Command Deep Dive & Outputs
 
-#### Phase 1: `/sdd-write-spec`
-Sets project-wide boundaries and standardizes context.
-* **Constitution Mode (No existing specs):**
+#### Phase 1: `/sdd-constitution` & `/sdd-write-spec`
+Sets project-wide boundaries and creates feature specifications.
+* **`/sdd-constitution` (No existing specs):**
   * `sdd-specs/mission.md` — Core objective, user persona, and "never do" list boundaries.
   * `sdd-specs/tech-stack.md` — Directory structure, code style rules (with code snippet), and test runner configurations.
   * `sdd-specs/roadmap.md` — Project milestones and release phases.
-* **Feature Spec Mode (Constitution exists):**
+* **`/sdd-write-spec` (Constitution exists):**
   * `sdd-specs/features/YYYY-MM-DD-{name}-spec.md` — Scoped feature specification.
   * `sdd-specs/roadmap.md` — Appends the feature to the active roadmap phase.
 
