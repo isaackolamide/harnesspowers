@@ -8,7 +8,8 @@
 
 ## Phase 1: [Phase Name]
 
-### [ ] Task 1.1: [Task Name]
+### Task 1.1: [Task Name]
+- [ ] Task Completed
 - Scope: S/M/L
 - Files: `exact/path/to/file.ts` (create), `exact/path/to/existing.ts` (modify)
 - Interfaces: produces `functionName(param: Type): ReturnType`; consumes `otherFn(param: Type): ReturnType` from Task 1.X
@@ -18,7 +19,8 @@
 - Verification: `npm test path/to/test.ts`
 - Dependencies: none
 
-### [ ] Task 1.2: [Task Name]
+### Task 1.2: [Task Name]
+- [ ] Task Completed
 - Scope: S/M/L
 - Files: ...
 - Interfaces: produces `anotherFn(input: InputType): OutputType`; consumes `functionName(param: Type): ReturnType` from Task 1.1
@@ -35,7 +37,8 @@
 
 ## Phase 2: [Phase Name]
 
-### [ ] Task 2.1: [Task Name]
+### Task 2.1: [Task Name]
+- [ ] Task Completed
 ...
 
 ### Checkpoint — Phase 2

@@ -60,7 +60,7 @@ Per-task reviewer note: The primitive dispatches per-slice reviews using `task-r
 - Full `requirements.md` — the spec compliance verdict requires the actual spec
 - Relevant constraints from `requirements.md` for this slice
 
-3.5. **LEDGER & COMMIT**: Once the task review passes, update the progress ledger. Tick the task header checkbox `[ ]` → `[x]` in `plan.md`. Stage and commit `plan.md` atomically with the task's code changes (one git commit per task).
+3.5. **LEDGER & COMMIT**: Once the task review passes, update the progress ledger. Tick the task's checklist checkbox `- [ ] Task Completed` → `- [x] Task Completed` in `plan.md`. Stage and commit `plan.md` atomically with the task's code changes (one git commit per task).
 
 3.6. **CHECKPOINT**: At the end of a `## Phase N` section:
 - Run the `Verification:` command from the `### Checkpoint — Phase N` block in `plan.md`.
