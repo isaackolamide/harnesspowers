@@ -37,23 +37,6 @@ claude-md-management (tooling)    — CLAUDE.md audit and improvement
 | `/sdd-verify-feature` | Validate spec compliance, audit code quality, update progress files, run pre-merge audits, and integrate/merge the branch |
 | `/optimise-claude-md` | Audit and improve any project's CLAUDE.md |
 
-## Migrating from `harnesspowers` to `sdd-harness`
-
-If you previously installed this plugin under the name `harnesspowers`, perform the following steps to upgrade:
-
-1. **Uninstall the old plugin** (if installed via Claude Code):
-   ```bash
-   claude plugin uninstall harnesspowers
-   ```
-2. **Remove old symlinks** (if installed via symlink):
-   ```bash
-   rm ~/.gemini/config/plugins/harnesspowers
-   rm ~/.copilot/plugins/harnesspowers
-   ```
-3. **Install the new plugin**:
-   Follow the [Installation](#installation) instructions below.
-4. **Update config file references**:
-   Update any occurrences of `harnesspowers` to `sdd-harness` in your global `AGENTS.md` (`~/.gemini/config/AGENTS.md`) or project-specific `.agents/AGENTS.md` or `CLAUDE.md` files (e.g., update `harnesspowers:sdd-constitution` to `sdd-harness:sdd-constitution`).
 
 ## Installation
 
@@ -68,97 +51,32 @@ If you previously installed this plugin under the name `harnesspowers`, perform 
 #### 1. Claude Code
 
 ```bash
-# Register marketplaces for sdd-harness and its agent-skills dependency
-claude plugin marketplace add https://github.com/isaackolamide/sdd-harness.git
+# Register marketplaces
 claude plugin marketplace add https://github.com/addyosmani/agent-skills.git
+claude plugin marketplace add https://github.com/isaackolamide/sdd-harness.git
 
-# Install companion plugins
+# Install plugins
 claude plugin install superpowers@claude-plugins-official
 claude plugin install frontend-design@claude-plugins-official
 claude plugin install claude-md-management@claude-plugins-official
 claude plugin install agent-skills@addy-agent-skills
-
-# Install sdd-harness
 claude plugin install sdd-harness@sdd-harness
 ```
 
-Restart Claude Code after installation to apply changes.
-
-**Updating sdd-harness:**
-```bash
-claude plugin update sdd-harness@sdd-harness
-```
-
 #### 2. Antigravity CLI / IDE
-Antigravity automatically discovers and loads plugins from the `~/.gemini/config/plugins` directory.
 
-**Method A: Native Install (Recommended)**
 ```bash
-# Install dependencies
 agy plugin install https://github.com/addyosmani/agent-skills.git
 agy plugin install https://github.com/obra/superpowers.git
-
-# Install sdd-harness
 agy plugin install https://github.com/isaackolamide/sdd-harness.git
 ```
 
-**Method B: Manual Git Clone & Symlink**
-```bash
-# Clone the repositories
-git clone https://github.com/addyosmani/agent-skills.git <path-to-agent-skills>
-git clone https://github.com/obra/superpowers.git <path-to-superpowers>
-git clone https://github.com/isaackolamide/sdd-harness.git <path-to-sdd-harness>
-
-# Symlink into Antigravity plugins directory
-ln -sf <path-to-agent-skills> ~/.gemini/config/plugins/agent-skills
-ln -sf <path-to-superpowers> ~/.gemini/config/plugins/superpowers
-ln -sf <path-to-sdd-harness> ~/.gemini/config/plugins/sdd-harness
-```
-
-Restart your Antigravity session to discover and enable the skills.
-
 #### 3. GitHub Copilot
-Copilot automatically reads user-level (global) rules and instructions from your home directory.
 
-**To enforce sdd-harness rules globally across all your projects:**
-
-For macOS/Linux:
 ```bash
-# Copy the Copilot instructions to your home directory
-cp <path-to-sdd-harness>/.github/copilot-instructions.md ~/.copilot-instructions.md
-```
-
-For Windows:
-```cmd
-:: Copy the Copilot instructions to your user profile directory
-copy <path-to-sdd-harness>\.github\copilot-instructions.md %USERPROFILE%\copilot-instructions.md
-```
-
-Alternatively, in Visual Studio Code:
-1. Open the Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`).
-2. Search and select **Copilot: Open Custom Instructions**.
-3. Paste the content of `<path-to-sdd-harness>/.github/copilot-instructions.md` into the editor.
-
-**To load skills/plugins locally into Copilot CLI/Codex:**
-
-**Method A: Marketplace (Superpowers only)**
-```bash
-# Register the marketplace and install superpowers
-copilot plugin marketplace add obra/superpowers-marketplace
-copilot plugin install superpowers@superpowers-marketplace
-```
-
-**Method B: Manual Git Clone & Symlink**
-```bash
-# Clone the repositories if you haven't already
-git clone https://github.com/addyosmani/agent-skills.git <path-to-agent-skills>
-git clone https://github.com/obra/superpowers.git <path-to-superpowers>
-git clone https://github.com/isaackolamide/sdd-harness.git <path-to-sdd-harness>
-
-# Symlink into Copilot plugins directory
-ln -sf <path-to-agent-skills> ~/.copilot/plugins/agent-skills
-ln -sf <path-to-superpowers> ~/.copilot/plugins/superpowers
-ln -sf <path-to-sdd-harness> ~/.copilot/plugins/sdd-harness
+copilot plugin install addyosmani/agent-skills
+copilot plugin install obra/superpowers
+copilot plugin install isaackolamide/sdd-harness
 ```
 
 ## How to Use
