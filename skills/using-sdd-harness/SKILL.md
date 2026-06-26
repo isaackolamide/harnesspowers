@@ -16,16 +16,21 @@ When a task arrives, identify the development phase and apply the corresponding 
 ```
 Task arrives
     │
-    ├── Vague / don't know what to build yet?   → agent-skills:interview-me
-    ├── Rough concept, need to explore variants? → agent-skills:idea-refine
+    ├── No constitution yet?                     → sdd-harness:sdd-constitution
+    │                                               (wraps superpowers:brainstorming + agent-skills:interview-me + codebase analysis)
+    │                                               outputs: sdd-specs/mission.md, sdd-specs/tech-stack.md, sdd-specs/roadmap.md
     │
-    ├── Need a spec?
-    │   ├── No constitution yet                  → sdd-harness:sdd-constitution
-    │   │                                           (wraps superpowers:brainstorming + agent-skills:interview-me + codebase analysis)
-    │   │                                           outputs: sdd-specs/mission.md, sdd-specs/tech-stack.md, sdd-specs/roadmap.md
-    │   ├── Constitution exists + feature reqs   → sdd-harness:sdd-write-spec
-    │   │                                           updates sdd-specs/roadmap.md, creates sdd-specs/features/YYYY-MM-DD-<name>-spec.md
-    │   └── Have a feature spec, want a plan     → sdd-harness:sdd-plan-feature
+    ├── Constitution exists:
+    │   ├── Feature idea is vague/rough?
+    │   │   ├── Vague / don't know what to build?    → agent-skills:interview-me
+    │   │   ├── Rough concept, explore variants?    → agent-skills:idea-refine
+    │   │   └── Need a PRD from rough idea?         → sdd-harness:sdd-prd
+    │   │                                               (outputs sdd-specs/prds/YYYY-MM-DD-<name>-prd.md)
+    │   │
+    │   ├── Need a spec?
+    │   │   ├── Constitution exists + feature reqs   → sdd-harness:sdd-write-spec
+    │   │   │                                           updates sdd-specs/roadmap.md, creates sdd-specs/features/YYYY-MM-DD-<name>-spec.md
+    │   │   └── Have a feature spec, want a plan     → sdd-harness:sdd-plan-feature
     │
     ├── Planning a feature?                      → sdd-harness:sdd-plan-feature
     │                                               (wraps agent-skills:planning-and-task-breakdown;
@@ -124,7 +129,7 @@ Every skill includes a verification step. A task is not complete until verificat
 
 1. **Check for an applicable skill before starting work.**
 2. **Skills are workflows, not suggestions.** Follow the steps in order.
-3. Multiple skills can apply in sequence. Example: `sdd-harness:sdd-constitution` → `sdd-harness:sdd-write-spec` → `sdd-harness:sdd-plan-feature` → `sdd-harness:sdd-implement-plan` → `sdd-harness:sdd-verify-feature`.
+3. Multiple skills can apply in sequence. Example: `sdd-harness:sdd-constitution` → `sdd-harness:sdd-prd` → `sdd-harness:sdd-write-spec` → `sdd-harness:sdd-plan-feature` → `sdd-harness:sdd-implement-plan` → `sdd-harness:sdd-verify-feature`.
 
 ## Plugin Stack Overview
 

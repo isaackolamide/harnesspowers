@@ -71,7 +71,7 @@ This populates the **Project Structure** and **Testing Strategy** sections of te
 
 Look for and read:
 - `README.md`
-- Any `sdd-docs/`, `documentation/`, or `wiki/` folders
+- Any `sdd-specs/docs/`, `documentation/`, or `wiki/` folders
 - Inline architecture comments in entry-point files
 - `CHANGELOG.md` or tagged releases for project history
 

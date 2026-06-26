@@ -8,8 +8,7 @@ src/components    → [Component description]
 src/lib           → Shared utilities and helpers
 tests/            → Unit and integration tests
 e2e/              → End-to-end tests
-sdd-docs/             → Documentation
-sdd-specs/            → Specification documents
+sdd-specs/            → Specification & design documents (including plans, features, and ADRs)
 ```
 
 ## Code Style

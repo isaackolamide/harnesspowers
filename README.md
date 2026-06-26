@@ -7,9 +7,9 @@
 sdd-harness is a plugin that provides the **SDD (Spec-Driven Development) workflow** — a structured path from blank slate to shipped feature, with a built-in iteration loop for post-implementation findings:
 
 ```
-constitution → spec → plan → implement → verify-feature
+constitution → prd → spec → plan → implement → verify-feature
                                                ↓
-                               findings → spec → plan → implement
+                                         findings → spec → plan → implement
 ```
 
 It wraps skills from two major plugins -> `superpowers` and `agent-skills`
@@ -17,7 +17,7 @@ It wraps skills from two major plugins -> `superpowers` and `agent-skills`
 ## Plugin Stack
 
 ```
-sdd-harness (orchestrator)      — 7 SDD workflow skills
+sdd-harness (orchestrator)      — 8 SDD workflow skills
      ↓ delegates to
 agent-skills (primitives)         — 24 engineering skills
 superpowers (discipline)          — TDD, subagent-driven execution, brainstorming
@@ -31,6 +31,7 @@ claude-md-management (tooling)    — CLAUDE.md audit and improvement
 |-------|-------------|
 | `/using-sdd-harness` | Routing tree — which skill for which task, across all plugins |
 | `/sdd-constitution` | Create or extract SDD constitution — works for new and existing projects |
+| `/sdd-prd` | Generate Product Requirements Document (PRD) from a rough idea via interactive discovery |
 | `/sdd-write-spec` | Create feature spec for a new feature — updates project roadmap and generates feature spec |
 | `/sdd-plan-feature` | Plan a feature from a feature spec file — outputs plan.md/requirements.md/validation.md; triggers ADR for significant arch decisions |
 | `/sdd-implement-plan` | Execute a feature plan — 3-way mode (subagent-driven / autonomous / checkpoint), domain-aware dispatch, TDD enforced, phase checkpoints, developer whole-branch review |
@@ -85,6 +86,30 @@ The SDD (Spec-Driven Development) workflow is structured into four main phases, 
 
 ![alt text](image.png)
 
+```mermaid
+flowchart TD
+    Start(["Start Task"]) --> Constitution{"Constitution exists?"}
+    Constitution -- "No" --> Init["0. Init Constitution: sdd-constitution"]
+    Init --> RoughIdea{"Rough idea or PRD needed?"}
+    Constitution -- "Yes" --> RoughIdea
+    
+    RoughIdea -- "Yes" --> PRD["0.5. PRD: sdd-prd"]
+    PRD --> Spec["1. Spec: sdd-write-spec"]
+    RoughIdea -- "No" --> Spec
+    
+    Spec --> Plan["2. Plan: sdd-plan-feature"]
+    Plan --> Implement["3. Implement: sdd-implement-plan"]
+    Implement --> Verify["4. Verify: sdd-verify-feature"]
+    Verify --> Finish(["Feature Integrated / Done"])
+    
+    %% Loop for issues found during verification
+    Verify -. "Verification Failures / Code Quality Issues" .-> Implement
+    
+    %% Loop for post-integration feedback/bugs
+    Finish -. "Post-Integration Findings / Bugs" .-> Spec
+    Finish -. "New Features / Greenfield Idea" .-> RoughIdea
+```
+
 > [!TIP]
 > Unsure which skill to run for a specific task? Run `/using-sdd-harness` at the start of your session to view the authoritative routing tree across all plugins in the stack.
 
@@ -93,10 +118,12 @@ The SDD (Spec-Driven Development) workflow is structured into four main phases, 
 Pick the starting command that matches your current project state:
 
 #### 1. Starting Fresh (New Project or Greenfield Initiative)
-You do not have a project constitution yet. You need to bootstrap the core scope, guidelines, and roadmap.
+You do not have a project constitution yet. You need to bootstrap the core scope, guidelines, roadmap, or crystallize a rough idea.
 ```text
+
 /sdd-constitution      # Interactive interview → generates mission.md, tech-stack.md, roadmap.md
-/sdd-write-spec        # Propose new feature spec → features/YYYY-MM-DD-{feature}-spec.md
+/sdd-prd               # Discovery interview → generates sdd-specs/prds/YYYY-MM-DD-{feature}-prd.md
+/sdd-write-spec        # Propose new feature spec (can read PRD) → features/YYYY-MM-DD-{feature}-spec.md
 /sdd-plan-feature      # Choose feature/milestone → plan.md, requirements.md, validation.md
 /sdd-implement-plan    # TDD slice-by-slice implementation loop
 /sdd-verify-feature    # Formal validation, quality audits, ticks roadmap, merges branch
@@ -106,7 +133,8 @@ You do not have a project constitution yet. You need to bootstrap the core scope
 #### 2. Constitution Exists (Adding a New Feature)
 The project constitution already exists. You are starting a new feature from the roadmap.
 ```text
-/sdd-write-spec        # Creates feature spec → sdd-specs/features/YYYY-MM-DD-{feature}-spec.md
+/sdd-prd               # Discovery interview (optional) → generates PRD
+/sdd-write-spec        # Creates feature spec (can consume PRD) → sdd-specs/features/YYYY-MM-DD-{feature}-spec.md
 /sdd-plan-feature      # Reads feature spec → plan.md, requirements.md, validation.md
 /sdd-implement-plan    # Runs implementation slices & developer review
 /sdd-verify-feature    # Formally validates criteria & integrates branch
@@ -125,14 +153,16 @@ Manual testing or review revealed issues or adjustments after running `/sdd-impl
 
 ### Command Deep Dive & Outputs
 
-#### Phase 1: `/sdd-constitution` & `/sdd-write-spec`
-Sets project-wide boundaries and creates feature specifications.
+#### Phase 1: Discovery & Specification (`/sdd-constitution`, `/sdd-prd`, `/sdd-write-spec`)
+Sets product requirements, project-wide boundaries, and creates feature specifications.
 * **`/sdd-constitution` (No existing specs):**
   * `sdd-specs/mission.md` — Core objective, user persona, and "never do" list boundaries.
   * `sdd-specs/tech-stack.md` — Directory structure, code style rules (with code snippet), and test runner configurations.
   * `sdd-specs/roadmap.md` — Project milestones and release phases.
-* **`/sdd-write-spec` (Constitution exists):**
-  * `sdd-specs/features/YYYY-MM-DD-{name}-spec.md` — Scoped feature specification.
+* **`/sdd-prd` (Rough product/feature idea):**
+  * `sdd-specs/prds/YYYY-MM-DD-{name}-prd.md` — Comprehensive Product Requirements Document (PRD) detailing user journeys, MoSCoW priorities, and constraints.
+* **`/sdd-write-spec` (PRD or idea exists):**
+  * `sdd-specs/features/YYYY-MM-DD-{name}-spec.md` — Scoped feature specification (can translate a PRD into a technical spec).
   * `sdd-specs/roadmap.md` — Appends the feature to the active roadmap phase.
 
 #### Phase 2: `/sdd-plan-feature`
@@ -141,7 +171,7 @@ Breaks the feature spec into structured, implementable tasks.
   * `sdd-specs/plans/YYYY-MM-DD-{name}/plan.md` — Task breakdown with strict interface contracts and phase checkpoints.
   * `sdd-specs/plans/YYYY-MM-DD-{name}/requirements.md` — Project scope, out-of-scope items, and design constraints (e.g. security, telemetry, migration risk).
   * `sdd-specs/plans/YYYY-MM-DD-{name}/validation.md` — Acceptance criteria checklist and definition of done.
-  * `sdd-docs/decisions/ADR-{NNN}.md` — Generated automatically if significant architectural choices surface.
+  * `sdd-specs/docs/decisions/ADR-{NNN}.md` — Generated automatically if significant architectural choices surface.
 
 #### Phase 3: `/sdd-implement-plan`
 Executes the plan slice by slice using Test-Driven Development (TDD) on an isolated feature branch.

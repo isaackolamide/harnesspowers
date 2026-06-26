@@ -131,7 +131,7 @@ After user confirms the breakdown, format the output directly into `plan.md` usi
 
 **ADR trigger:** When decomposition surfaces a significant architectural or technology choice (framework selection, data model, auth strategy, API architecture, or any decision expensive to reverse):
 - Invoke `agent-skills:documentation-and-adrs`
-- **Save location:** `sdd-docs/decisions/ADR-{NNN}-{title}.md` — sequential numbering; check existing files to determine next number. ADRs are project-level artifacts and are **not** saved inside the feature directory.
+- **Save location:** `sdd-specs/docs/decisions/ADR-{NNN}-{title}.md` — sequential numbering; check existing files to determine next number. ADRs are project-level artifacts and are **not** saved inside the feature directory.
 - **Cross-reference:** Add the ADR path to `requirements.md` under the Decisions section
 
 Apply the ADR trigger only to choices where the rationale and rejected alternatives have future value — not to every decision.
@@ -207,7 +207,7 @@ When you invoke `/sdd-plan-feature`:
 6. Confirm feature name (propose if inferrable; otherwise ask a single question) — create `sdd-specs/plans/YYYY-MM-DD-{feature-name}/` directory immediately after confirmation.
 7. Run Conditional Planning Classification (Step 3.5) — check keywords for Security, Telemetry, Migration risk, and Clean Architecture. Prepare corresponding requirements/validation/plan additions. Always include the testing patterns reference.
 8. Trigger `agent-skills:planning-and-task-breakdown` — dependency graph, vertical slices, task sizing, checkpoints.
-9. If a significant architectural decision surfaces: invoke `agent-skills:documentation-and-adrs` → save to `sdd-docs/decisions/ADR-{NNN}-{title}.md`; cross-reference in requirements.md.
+9. If a significant architectural decision surfaces: invoke `agent-skills:documentation-and-adrs` → save to `sdd-specs/docs/decisions/ADR-{NNN}-{title}.md`; cross-reference in requirements.md.
 10. Confirm task order and sizing with user before continuing — then format output directly into `plan.md` using the templates.
 11. Present pre-write summary of all three files — ask focused probe; resolve concerns before writing.
 12. Write plan.md, requirements.md, and validation.md to `sdd-specs/plans/YYYY-MM-DD-{feature-name}/`.
@@ -219,7 +219,7 @@ When you invoke `/sdd-plan-feature`:
 - Single-pass planning: planning-and-task-breakdown output is formatted directly into plan.md — no intermediate files of any kind, no writing-plans pass.
 - Plans contain interface contracts (function name + type per task), not code — TDD execution is sdd-implement-plan's job at implementation time. If you cannot name a function signature for a task, decompose that task further: inspect existing code for caller conventions, ask the user what the consuming task expects, or stub a name and type from the task description.
 - Phase sections with checkpoint blocks and task headers with checkboxes enable progress tracking during implementation.
-- ADRs are project-level artifacts saved to `sdd-docs/decisions/` with sequential numbering — not in the feature directory.
+- ADRs are project-level artifacts saved to `sdd-specs/docs/decisions/` with sequential numbering — not in the feature directory.
 - Pre-write review probes for gaps with a structured summary and a focused probe question before committing files to disk.
 - requirements.md makes out-of-scope explicit, not just in-scope.
 - requirements.md contains conditional sections (Security, Telemetry, Migrations) which are omitted by default unless triggered by keyword classification to avoid planning bloat.
